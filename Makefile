@@ -6,6 +6,3 @@ run_tg:
 
 run:
 	go run ./main.go
-
-
-GIT_SSH_COMMAND='ssh -i PATH/TO/KEY/FILE -o IdentitiesOnly=yes' git clone git@github.com:OWNER/REPOSITORY
