@@ -1,0 +1,29 @@
+{
+    "ok": true,
+    "result": [
+        {
+            "update_id": 252761052,
+            "edited_message": {
+                "message_id": 77,
+                "from": {
+                    "id": 350630952,
+                    "is_bot": false,
+                    "first_name": "Konstantin",
+                    "last_name": "Mitrakov",
+                    "username": "mitrkos",
+                    "language_code": "en"
+                },
+                "chat": {
+                    "id": 350630952,
+                    "first_name": "Konstantin",
+                    "last_name": "Mitrakov",
+                    "username": "mitrkos",
+                    "type": "private"
+                },
+                "date": 1709587574,
+                "edit_date": 1709587613,
+                "text": "hello"
+            }
+        }
+    ]
+}
