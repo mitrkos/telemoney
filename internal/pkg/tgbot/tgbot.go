@@ -3,10 +3,13 @@ package tgbot
 
 import (
 	"log/slog"
-	"os"
 
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
+
+const (
+	TOKEN_FILE = "./local/tg/token.txt"
 )
 
 type TgBot struct {
@@ -15,15 +18,7 @@ type TgBot struct {
 	updateHandlerMessage func(msg *tgbotapi.Message) error
 }
 
-func GetToken() (string, error) {
-	token, err := os.ReadFile("./local/tg/token.txt")
-	if err != nil {
-		return "", err
-	}
-	return string(token), nil
-}
-
-func Create(token string) (*TgBot, error) {
+func New(token string) (*TgBot, error) {
 	botApi, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, err

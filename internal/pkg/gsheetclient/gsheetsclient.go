@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"log/slog"
-	"os"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
@@ -12,6 +11,8 @@ import (
 )
 
 const (
+	TOKEN_FILE = "./local/gauth/telemoney-b63c1d5ddf79.txt"
+
 	// https://docs.google.com/spreadsheets/d/<SPREADSHEETID>/edit#gid=<SHEETID>
 	// https://docs.google.com/spreadsheets/d/1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs/edit#gid=0
 	SPREADSHEET_ID               = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
@@ -23,16 +24,7 @@ type GSheetsClient struct {
 	service *sheets.Service
 }
 
-func GetToken() (string, error) {
-	auth64, err := os.ReadFile("./local/gauth/telemoney-b63c1d5ddf79.txt")
-	if err != nil {
-		return "", err
-	}
-
-	return string(auth64), nil
-}
-
-func Create(token string) (*GSheetsClient, error) {
+func New(token string) (*GSheetsClient, error) {
 	credBytes, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		return nil, err

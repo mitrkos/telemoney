@@ -5,4 +5,4 @@ run_tg:
 	go run ./telegram_test/main.go
 
 run:
-	go run ./main.go
+	go run .cmd/telemoney/main.go
