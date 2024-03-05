@@ -9,7 +9,7 @@ type Message struct {
 type Transaction struct {
 	createdAt int
 	messageId string
-	amount float32
+	amount float64
 	category string
 	tags []string
 	comment string
