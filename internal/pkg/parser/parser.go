@@ -21,7 +21,7 @@ type TransactionUserInputData struct {
 }
 
 func New() *Parser {
-	regexp := regroup.MustCompile(`(?P<amount>\d+[\.,]?\d*) (?P<category>\w*) (?:\((?P<tags>[\w, ]*)\))?(?P<comment>.*$)?`) // to parse "9,5 lunch (grenka, dumplings) I need foood!"
+	regexp := regroup.MustCompile(`^(?P<amount>\d+[\.,]?\d*) (?P<category>\w*) ?(?:\((?P<tags>[\w, ]*)\))?(?P<comment>.*$)?`) // to parse "9,5 lunch (grenka, dumplings) I need foood!"
 	return &Parser{
 		regexp: regexp,
 	}
@@ -69,7 +69,7 @@ func (p *Parser) ParseTransactionUserInputDataFromText(text string) (*Transactio
 	if err != nil {
 		slog.Error("Parsing TransactionUserInputData failed", slog.Any("error", err), slog.Any("input", text))
 	} else {
-		slog.Info("Parsed TransactionUserInputData", slog.Any("result", result), slog.Any("input", text),  slog.Any("comment", *result.comment))
+		slog.Info("Parsed TransactionUserInputData", slog.Any("result", result), slog.Any("input", text))
 	}
 
 	return result, err
@@ -101,7 +101,10 @@ func parseAndValidateTransactionTags(tagsRaw string, ok bool) ([]string, error) 
 
 	splittedTagsRaw := strings.Split(tagsRaw, ",")
 	for _, tagRaw := range splittedTagsRaw {
-		tags = append(tags, strings.ToLower(strings.TrimSpace(tagRaw)))
+		normilizedTag := strings.ToLower(strings.TrimSpace(tagRaw))
+		if len(normilizedTag) > 0 {
+			tags = append(tags, strings.ToLower(strings.TrimSpace(tagRaw)))
+		}
 	}
 
 	if len(tags) > 0 {
