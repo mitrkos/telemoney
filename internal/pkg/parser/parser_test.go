@@ -67,6 +67,16 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 			},
 		},
 		{
+			name: "integer amount",
+			text: "9 lunch",
+			expectedResult: &TransactionUserInputData{
+				amount:   9,
+				category: "lunch",
+				tags:     nil,
+				comment:  nil,
+			},
+		},
+		{
 			name: "category normalization",
 			text: "9,5 Lunch ",
 			expectedResult: &TransactionUserInputData{
