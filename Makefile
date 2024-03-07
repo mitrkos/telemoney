@@ -8,4 +8,4 @@ run_parser:
 	go run ./cmd/parser_test/main.go
 
 run:
-	go run .cmd/telemoney/main.go
+	go run ./cmd/telemoney/main.go

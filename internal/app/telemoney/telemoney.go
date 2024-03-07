@@ -1,8 +1,10 @@
 package telemoney
 
 import (
-	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
+	"strings"
+
 	"github.com/mitrkos/telemoney/internal/model"
+	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
 
 	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
@@ -64,7 +66,7 @@ func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSh
 		}
 
 		if transaction != nil {
-			gSheetsClient.WriteRow([]interface{}{transaction.CreatedAt, transaction.MessageId, transaction.Amount, transaction.Category, transaction.Tags, transaction.Comment})
+			gSheetsClient.WriteRow(convertTransactionToRow(transaction))
 		}
 
 		return nil
@@ -89,4 +91,23 @@ func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.Message) (
 		Tags: userInputData.Tags,
 		Comment: userInputData.Comment,
 	}, nil
+}
+
+
+func convertTransactionToRow(transaction *model.Transaction) []interface{} {
+	dataRow := make([]interface{}, 6)
+
+	dataRow[0] = transaction.CreatedAt
+	dataRow[1] = transaction.MessageId
+	dataRow[2] = transaction.Amount
+	dataRow[3] = transaction.Category
+	if len(transaction.Tags) > 0 {
+		tagsStr := strings.Join(transaction.Tags[:], ",")
+		dataRow[4]= tagsStr
+	}
+	if transaction.Comment != nil {
+		dataRow[5] = *transaction.Comment
+	}
+
+	return dataRow
 }
