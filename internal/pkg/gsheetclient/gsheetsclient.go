@@ -53,26 +53,15 @@ func New(token string) (*GSheetsClient, error) {
 	return gsc, nil
 }
 
-func (gsc *GSheetsClient) WriteData(data string) {
+func (gsc *GSheetsClient) WriteRow(dataRow []interface{}) {
 	row := &sheets.ValueRange{
-		Values: [][]interface{}{{data}},
+		Values: [][]interface{}{dataRow},
 	}
 
 	ctx := context.Background()
 	response, err := gsc.service.Spreadsheets.Values.Append(SPREADSHEET_ID, TRANSACTION_SPREADSHEET_NAME, row).ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").Context(ctx).Do()
 	if err != nil || response.HTTPStatusCode != 200 {
-		slog.ErrorContext(ctx, "Write data failed", slog.Any("err", err), slog.Any("response", response), slog.Any("data", data))
+		slog.ErrorContext(ctx, "Write data failed", slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow))
 		return
 	}
 }
-
-// //Append value to the sheet.
-// row := &sheets.ValueRange{
-// 	Values: [][]interface{}{{"1", "ABC", "abc@gmail.com"}},
-// }
-
-// response2, err := srv.Spreadsheets.Values.Append(SPREADSHEET_ID, sheetName, row).ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").Context(ctx).Do()
-// if err != nil || response2.HTTPStatusCode != 200 {
-// 	fmt.Print(err)
-// 	return
-// }

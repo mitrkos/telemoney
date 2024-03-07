@@ -1,7 +1,8 @@
 package telemoney
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
+	"github.com/mitrkos/telemoney/internal/model"
 
 	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
@@ -30,7 +31,9 @@ func Start() error {
 		return err
 	}
 
-	tgBot.SetUpdateHandlerMessage(makeHandleTgMessage(gSheetsClient))
+	parser := parsing.New()
+
+	tgBot.SetUpdateHandlerMessage(makeHandleTgMessage(parser, gSheetsClient))
 	tgBot.ListenToUpdates()
 
 	return nil
@@ -53,9 +56,37 @@ func getConfig() (*Config, error) {
 	}, nil
 }
 
-func makeHandleTgMessage(gSheetsClient *gsheetclient.GSheetsClient) func(tgMessage *tgbotapi.Message) error {
-	return func(tgMessage *tgbotapi.Message) error {
-		gSheetsClient.WriteData(tgMessage.Text)
+func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSheetsClient) func(msg *model.Message) error {
+	return func(msg *model.Message) error {
+		transaction, err := convertMessageIntoTransaction(parser, msg)
+		if err != nil {
+			return err
+		}
+
+		if transaction != nil {
+			gSheetsClient.WriteRow([]interface{}{transaction.CreatedAt, transaction.MessageId, transaction.Amount, transaction.Category, transaction.Tags, transaction.Comment})
+		}
+
 		return nil
 	}
+}
+
+func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.Message) (*model.Transaction, error) {
+	if msg == nil {
+		return nil, nil
+	}
+
+	userInputData, err := parser.ParseTransactionUserInputDataFromText(msg.Text)
+	if err != nil || userInputData == nil {
+		return nil, err
+	}
+
+	return &model.Transaction{
+		CreatedAt: msg.CreatedAt,
+		MessageId: msg.MessageId,
+		Amount: userInputData.Amount,
+		Category: userInputData.Category,
+		Tags: userInputData.Tags,
+		Comment: userInputData.Comment,
+	}, nil
 }

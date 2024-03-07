@@ -14,10 +14,10 @@ type Parser struct {
 }
 
 type TransactionUserInputData struct {
-	amount   float64
-	category string
-	tags     []string
-	comment  *string
+	Amount   float64
+	Category string
+	Tags     []string
+	Comment  *string
 }
 
 func New() *Parser {
@@ -59,10 +59,10 @@ func (p *Parser) ParseTransactionUserInputDataFromText(text string) (*Transactio
 		}
 
 		return &TransactionUserInputData{
-			amount:   amount,
-			category: category,
-			tags:     tags,
-			comment:  comment,
+			Amount:   amount,
+			Category: category,
+			Tags:     tags,
+			Comment:  comment,
 		}, nil
 	}()
 

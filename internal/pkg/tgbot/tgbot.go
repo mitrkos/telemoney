@@ -1,9 +1,10 @@
 package tgbot
 
-
 import (
 	"log/slog"
+	"strconv"
 
+	"github.com/mitrkos/telemoney/internal/model"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -15,7 +16,7 @@ const (
 type TgBot struct {
 	client *tgbotapi.BotAPI
 
-	updateHandlerMessage func(msg *tgbotapi.Message) error
+	updateHandlerMessage func(msg *model.Message) error
 }
 
 func New(token string) (*TgBot, error) {
@@ -26,15 +27,14 @@ func New(token string) (*TgBot, error) {
 
 	slog.Info("Tg connected", slog.Any("botApi", botApi.Self))
 
-	return &TgBot{client:  botApi}, nil
+	return &TgBot{client: botApi}, nil
 }
-
 
 func (tg *TgBot) SetDebug() {
 	tg.client.Debug = true
 }
 
-func (tg *TgBot) SetUpdateHandlerMessage(updateHandlerMessage func(msg *tgbotapi.Message) error) {
+func (tg *TgBot) SetUpdateHandlerMessage(updateHandlerMessage func(msg *model.Message) error) {
 	tg.updateHandlerMessage = updateHandlerMessage
 }
 
@@ -56,10 +56,19 @@ func (tg *TgBot) ListenToUpdates() {
 		// is up to. We only want to look at messages for now, so we can
 		// discard any other updates.
 		if update.Message != nil {
-			err := tg.updateHandlerMessage(update.Message)
+			err := tg.updateHandlerMessage(convertTgMessageToMessage(update.Message))
 			if err != nil {
-				slog.Error("Error while handling a tg msg", slog.Any("err", err),  slog.Any("msg", update.Message))
+				slog.Error("Error while handling a tg msg", slog.Any("err", err), slog.Any("msg", update.Message))
 			}
 		}
+	}
+}
+
+
+func convertTgMessageToMessage(tgMsg *tgbotapi.Message) *model.Message {
+	return &model.Message{
+		CreatedAt: tgMsg.Date,
+		MessageId: strconv.Itoa(tgMsg.MessageID),
+		Text: tgMsg.Text,
 	}
 }
