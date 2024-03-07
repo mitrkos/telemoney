@@ -53,7 +53,7 @@ func New(token string) (*GSheetsClient, error) {
 	return gsc, nil
 }
 
-func (gsc *GSheetsClient) WriteRow(dataRow []interface{}) {
+func (gsc *GSheetsClient) WriteDataRow(dataRow []interface{}) {
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{dataRow},
 	}

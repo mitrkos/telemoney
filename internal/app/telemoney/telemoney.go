@@ -66,7 +66,7 @@ func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSh
 		}
 
 		if transaction != nil {
-			gSheetsClient.WriteRow(convertTransactionToRow(transaction))
+			gSheetsClient.WriteDataRow(convertTransactionToDataRow(transaction))
 		}
 
 		return nil
@@ -86,15 +86,14 @@ func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.Message) (
 	return &model.Transaction{
 		CreatedAt: msg.CreatedAt,
 		MessageId: msg.MessageId,
-		Amount: userInputData.Amount,
-		Category: userInputData.Category,
-		Tags: userInputData.Tags,
-		Comment: userInputData.Comment,
+		Amount:    userInputData.Amount,
+		Category:  userInputData.Category,
+		Tags:      userInputData.Tags,
+		Comment:   userInputData.Comment,
 	}, nil
 }
 
-
-func convertTransactionToRow(transaction *model.Transaction) []interface{} {
+func convertTransactionToDataRow(transaction *model.Transaction) []interface{} {
 	dataRow := make([]interface{}, 6)
 
 	dataRow[0] = transaction.CreatedAt
@@ -103,7 +102,7 @@ func convertTransactionToRow(transaction *model.Transaction) []interface{} {
 	dataRow[3] = transaction.Category
 	if len(transaction.Tags) > 0 {
 		tagsStr := strings.Join(transaction.Tags[:], ",")
-		dataRow[4]= tagsStr
+		dataRow[4] = tagsStr
 	}
 	if transaction.Comment != nil {
 		dataRow[5] = *transaction.Comment
