@@ -15,9 +15,10 @@ const (
 
 	// https://docs.google.com/spreadsheets/d/<SPREADSHEETID>/edit#gid=<SHEETID>
 	// https://docs.google.com/spreadsheets/d/1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs/edit#gid=0
-	SPREADSHEET_ID               = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
-	SHEET_ID                     = 0
-	TRANSACTION_SPREADSHEET_NAME = "transaction"
+	SPREADSHEET_ID = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
+	SHEET_ID       = 0
+	// TRANSACTION_SPREADSHEET_NAME = "transaction"
+	TRANSACTION_SPREADSHEET_NAME = "transaction_test"
 )
 
 type GSheetsClient struct {
