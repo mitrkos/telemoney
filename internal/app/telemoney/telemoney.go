@@ -8,27 +8,33 @@ import (
 
 	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
-	"github.com/mitrkos/telemoney/internal/utils"
 )
 
-type Config struct {
-	gsheets_token string
-	tg_token      string
-}
-
 func Start() error {
-	config, err := getConfig()
+	config, err := readConfig()
 	if err != nil {
 		return err
 	}
 
-	tgBot, err := tgbot.New(config.tg_token)
+	tgConfig := tgbot.Config{
+		AuthToken: config.TgAuthToken,
+	}
+	tgBot, err := tgbot.New(&tgConfig)
 	if err != nil {
 		return err
 	}
 	tgBot.SetDebug()
 
-	gSheetsClient, err := gsheetclient.New(config.gsheets_token)
+	gsheetConfig := gsheetclient.Config{
+		AuthToken:     config.GSheetsAuthToken,
+		SpreadsheetID: config.SpreadsheetID,
+	}
+	if config.Env == "dev" {
+		gsheetConfig.TransactionSheetID = config.TransactionSheetIDTest
+	} else {
+		gsheetConfig.TransactionSheetID = config.TransactionSheetID
+	}
+	gSheetsClient, err := gsheetclient.New(&gsheetConfig)
 	if err != nil {
 		return err
 	}
@@ -39,23 +45,6 @@ func Start() error {
 	tgBot.ListenToUpdates()
 
 	return nil
-}
-
-func getConfig() (*Config, error) {
-	gsheetToken, err := utils.GetTokenFromFile(gsheetclient.TOKEN_FILE)
-	if err != nil {
-		return nil, err
-	}
-
-	tgToken, err := utils.GetTokenFromFile(tgbot.TOKEN_FILE)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Config{
-		gsheets_token: gsheetToken,
-		tg_token:      tgToken,
-	}, nil
 }
 
 func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSheetsClient) func(msg *model.Message) error {

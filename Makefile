@@ -4,8 +4,8 @@ run_gsheet:
 run_tg:
 	go run ./cmd/telegram_test/main.go
 
-run_parser:
-	go run ./cmd/parser_test/main.go
-
-run:
+run_telemoney:
 	go run ./cmd/telemoney/main.go
+
+apply_env:
+	export $(cat .env | xargs) && env

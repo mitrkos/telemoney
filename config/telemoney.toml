@@ -1,0 +1,6 @@
+Env = "dev" # dev, prod
+
+[gsheets]
+SpreadsheetId = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
+TransactionSheetID = "transaction"
+TransactionSheetIDTest = "transaction_test"

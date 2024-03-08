@@ -9,25 +9,27 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-const (
-	TOKEN_FILE = "./local/tg/token.txt"
-)
-
 type TgBot struct {
+	config *Config
+
 	client *tgbotapi.BotAPI
 
 	updateHandlerMessage func(msg *model.Message) error
 }
 
-func New(token string) (*TgBot, error) {
-	botApi, err := tgbotapi.NewBotAPI(token)
+type Config struct {
+	AuthToken string
+}
+
+func New(config *Config) (*TgBot, error) {
+	botApi, err := tgbotapi.NewBotAPI(config.AuthToken)
 	if err != nil {
 		return nil, err
 	}
 
 	slog.Info("Tg connected", slog.Any("botApi", botApi.Self))
 
-	return &TgBot{client: botApi}, nil
+	return &TgBot{config: config, client: botApi}, nil
 }
 
 func (tg *TgBot) SetDebug() {
@@ -64,11 +66,10 @@ func (tg *TgBot) ListenToUpdates() {
 	}
 }
 
-
 func convertTgMessageToMessage(tgMsg *tgbotapi.Message) *model.Message {
 	return &model.Message{
 		CreatedAt: tgMsg.Date,
 		MessageId: strconv.Itoa(tgMsg.MessageID),
-		Text: tgMsg.Text,
+		Text:      tgMsg.Text,
 	}
 }
