@@ -1,6 +1,6 @@
-Env = "dev" # dev, prod
+env = "dev" # dev, prod
 
 [gsheets]
-SpreadsheetId = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
-TransactionSheetID = "transaction"
-TransactionSheetIDTest = "transaction_test"
+spreadsheet_id = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
+transaction_sheet_id = "transaction"
+transaction_sheet_id_test = "transaction_test"

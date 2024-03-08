@@ -8,4 +8,4 @@ run_telemoney:
 	go run ./cmd/telemoney/main.go
 
 apply_env:
-	export $(cat .env | xargs) && env
+	export $(cat ./.env | xargs) && env
