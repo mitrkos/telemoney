@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/mitrkos/telemoney/internal/app/telemoney"
-	"github.com/mitrkos/telemoney/internal/utils/logger"
+	"github.com/mitrkos/telemoney/internal/pkg/logger"
 )
 
 func main() {
