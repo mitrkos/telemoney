@@ -38,8 +38,8 @@ func readConfig() (*Config, error) {
 		TransactionSheetID:     viper.GetString("gsheets.transaction_sheet_id"),
 		TransactionSheetIDTest: viper.GetString("gsheets.transaction_sheet_id_test"),
 
-		TgAuthToken:      viper.GetString("TG_BOT_TOKEN"),
-		GSheetsAuthToken: viper.GetString("GAUTH_TOKEN"),
+		TgAuthToken:      viper.GetString("TELEMONEY_TG_BOT_TOKEN"),
+		GSheetsAuthToken: viper.GetString("TELEMONEY_GAUTH_TOKEN"),
 	}
 
 	if config.Env == "" || config.SpreadsheetID == "" || config.TransactionSheetID == "" || config.TransactionSheetIDTest == "" || config.TgAuthToken == "" || config.GSheetsAuthToken == "" {
