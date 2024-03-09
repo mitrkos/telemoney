@@ -7,6 +7,9 @@ run_tg:
 run_telemoney:
 	go run ./cmd/telemoney/main.go
 
+run_tests:
+	go test -v ./...
+
 apply_env:
 	export $(cat ./.env | xargs) && env
 
