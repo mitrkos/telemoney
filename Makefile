@@ -9,3 +9,10 @@ run_telemoney:
 
 apply_env:
 	export $(cat ./.env | xargs) && env
+
+
+docker_build:
+	docker build --progress=plain --tag telemoney .
+
+docker_run:
+	docker run --env-file .env telemoney

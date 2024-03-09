@@ -1,6 +1,7 @@
 package telemoney
 
 import (
+	"log/slog"
 	"strings"
 
 	"github.com/mitrkos/telemoney/internal/model"
@@ -13,6 +14,7 @@ import (
 func Start() error {
 	config, err := readConfig()
 	if err != nil {
+		slog.Error("can't read the config", slog.Any("err", err))
 		return err
 	}
 
@@ -21,6 +23,7 @@ func Start() error {
 	}
 	tgBot, err := tgbot.New(&tgConfig)
 	if err != nil {
+		slog.Error("can't connect to tg", slog.Any("err", err))
 		return err
 	}
 	tgBot.SetDebug()
@@ -36,6 +39,7 @@ func Start() error {
 	}
 	gSheetsClient, err := gsheetclient.New(&gsheetConfig)
 	if err != nil {
+		slog.Error("can't connect to gsheets", slog.Any("err", err))
 		return err
 	}
 

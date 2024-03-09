@@ -18,16 +18,13 @@ type Config struct {
 }
 
 func readConfig() (*Config, error) {
-	viper.SetConfigFile(".env")
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, err
-	}
+	viper.BindEnv("tg.auth_token", "TELEMONEY_TG_BOT_TOKEN")
+	viper.BindEnv("gsheets.auth_token", "TELEMONEY_GAUTH_TOKEN")
 
 	viper.SetConfigName("telemoney")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath("./config")
-	err = viper.MergeInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +35,8 @@ func readConfig() (*Config, error) {
 		TransactionSheetID:     viper.GetString("gsheets.transaction_sheet_id"),
 		TransactionSheetIDTest: viper.GetString("gsheets.transaction_sheet_id_test"),
 
-		TgAuthToken:      viper.GetString("TELEMONEY_TG_BOT_TOKEN"),
-		GSheetsAuthToken: viper.GetString("TELEMONEY_GAUTH_TOKEN"),
+		TgAuthToken:      viper.GetString("tg.auth_token"),
+		GSheetsAuthToken: viper.GetString("gsheets.auth_token"),
 	}
 
 	if config.Env == "" || config.SpreadsheetID == "" || config.TransactionSheetID == "" || config.TransactionSheetIDTest == "" || config.TgAuthToken == "" || config.GSheetsAuthToken == "" {

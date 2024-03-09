@@ -1,6 +1,10 @@
 env = "dev" # dev, prod
 
 [gsheets]
-spreadsheet_id = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
-transaction_sheet_id = "transaction"
-transaction_sheet_id_test = "transaction_test"
+    auth_token = "TELEMONEY_GAUTH_TOKEN"
+    spreadsheet_id = "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs"
+    transaction_sheet_id = "transaction"
+    transaction_sheet_id_test = "transaction_test"
+
+[tg]
+    auth_token = "TELEMONEY_TG_BOT_TOKEN"
