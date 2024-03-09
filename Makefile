@@ -10,6 +10,10 @@ run_telemoney:
 run_tests:
 	go test -v ./...
 
+run_test_build:
+	go build -v -o ./telemoney ./cmd/telemoney
+	rm ./telemoney
+
 apply_env:
 	export $(cat ./.env | xargs) && env
 
