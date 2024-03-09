@@ -10,12 +10,12 @@ run_telemoney:
 apply_env:
 	export $(cat ./.env | xargs) && env
 
+docker-run:
+	docker compose up -d
 
-docker_build:
-	docker build --progress=plain --tag telemoney .
+docker-run-dev:
+	docker compose up --build
 
-docker_run_local:
-	docker run --env-file .env telemoney
+docker-down:
+	docker compose down
 
-docker_run:
-	docker run -e TELEMONEY_TG_BOT_TOKEN -e TELEMONEY_GAUTH_TOKEN telemoney
