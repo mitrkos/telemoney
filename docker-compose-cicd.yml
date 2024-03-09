@@ -6,6 +6,7 @@ services:
     build:
       context: .
     environment:
+      - TELEMONEY_ENV=${TELEMONEY_ENV:?env not set}
       - TELEMONEY_TG_BOT_TOKEN=${TELEMONEY_TG_BOT_TOKEN:?tg token not set}
       - TELEMONEY_GAUTH_TOKEN=${TELEMONEY_GAUTH_TOKEN:?gsheet token not set}
     deploy:

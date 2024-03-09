@@ -1,4 +1,4 @@
-env = "dev" # dev, prod
+env = "TELEMONEY_ENV" # dev, prod
 
 [gsheets]
     auth_token = "TELEMONEY_GAUTH_TOKEN"

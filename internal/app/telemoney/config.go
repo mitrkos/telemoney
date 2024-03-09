@@ -18,6 +18,7 @@ type Config struct {
 }
 
 func readConfig() (*Config, error) {
+	viper.BindEnv("env", "TELEMONEY_ENV")
 	viper.BindEnv("tg.auth_token", "TELEMONEY_TG_BOT_TOKEN")
 	viper.BindEnv("gsheets.auth_token", "TELEMONEY_GAUTH_TOKEN")
 
