@@ -23,6 +23,9 @@ docker-run:
 docker-run-dev:
 	docker compose up --build
 
+docker-run-cicd:
+	docker compose -f docker-compose-test.yml up --build  
+
 docker-down:
 	docker compose down
 
