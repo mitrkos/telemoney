@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  telemoney:
+    image: mitrkosmitrkos/telemoney:latest
+    build:
+      context: .
+    environment:
+      - TELEMONEY_TG_BOT_TOKEN=${TELEMONEY_TG_BOT_TOKEN:?tg token not set}
+      - TELEMONEY_GAUTH_TOKEN=${TELEMONEY_GAUTH_TOKEN:?gsheet token not set}
+    deploy:
+      restart_policy:
+        condition: on-failure
