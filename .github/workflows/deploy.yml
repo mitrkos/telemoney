@@ -1,10 +1,10 @@
-name: Deploy
+name: deploy
 
 on:
   workflow_dispatch
   
 jobs:
-  run_example_job:
+  deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -17,4 +17,6 @@ jobs:
         port: ${{ secrets.PORT }}
         command_timeout: 30m
         script: | 
-          echo "Nice Job!!!"
+          cd telemoney
+          git pull origin main
+          make docker-run-cicd
