@@ -19,8 +19,12 @@ func Start() error {
 	}
 
 	tgConfig := tgbot.Config{
-		AuthToken: config.TgAuthToken,
+		AuthToken: config.TgAuthTokenTest,
 	}
+	if config.Env == "prod" {
+		tgConfig.AuthToken = config.TgAuthToken
+	}
+
 	tgBot, err := tgbot.New(&tgConfig)
 	if err != nil {
 		slog.Error("can't connect to tg", slog.Any("err", err))
@@ -29,12 +33,11 @@ func Start() error {
 	tgBot.SetDebug()
 
 	gsheetConfig := gsheetclient.Config{
-		AuthToken:     config.GSheetsAuthToken,
-		SpreadsheetID: config.SpreadsheetID,
+		AuthToken:          config.GSheetsAuthToken,
+		SpreadsheetID:      config.SpreadsheetID,
+		TransactionSheetID: config.TransactionSheetIDTest,
 	}
-	if config.Env == "dev" {
-		gsheetConfig.TransactionSheetID = config.TransactionSheetIDTest
-	} else {
+	if config.Env == "prod" {
 		gsheetConfig.TransactionSheetID = config.TransactionSheetID
 	}
 	gSheetsClient, err := gsheetclient.New(&gsheetConfig)

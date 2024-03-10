@@ -8,3 +8,4 @@ env = "TELEMONEY_ENV" # dev, prod
 
 [tg]
     auth_token = "TELEMONEY_TG_BOT_TOKEN"
+    auth_token_test = "TELEMONEY_TG_BOT_TOKEN_TEST"

@@ -14,12 +14,14 @@ type Config struct {
 	TransactionSheetIDTest string
 
 	TgAuthToken      string
+	TgAuthTokenTest      string
 	GSheetsAuthToken string
 }
 
 func readConfig() (*Config, error) {
 	viper.BindEnv("env", "TELEMONEY_ENV")
 	viper.BindEnv("tg.auth_token", "TELEMONEY_TG_BOT_TOKEN")
+	viper.BindEnv("tg.auth_token_test", "TELEMONEY_TG_BOT_TOKEN_TEST")
 	viper.BindEnv("gsheets.auth_token", "TELEMONEY_GAUTH_TOKEN")
 
 	viper.SetConfigName("telemoney")
@@ -37,6 +39,7 @@ func readConfig() (*Config, error) {
 		TransactionSheetIDTest: viper.GetString("gsheets.transaction_sheet_id_test"),
 
 		TgAuthToken:      viper.GetString("tg.auth_token"),
+		TgAuthTokenTest:      viper.GetString("tg.auth_token_test"),
 		GSheetsAuthToken: viper.GetString("gsheets.auth_token"),
 	}
 
