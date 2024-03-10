@@ -5,14 +5,13 @@ import (
 	"strconv"
 
 	"github.com/mitrkos/telemoney/internal/model"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/mymmrac/telego"
 )
 
 type TgBot struct {
 	config *Config
 
-	client *tgbotapi.BotAPI
+	bot *telego.Bot
 
 	updateHandlerMessage func(msg *model.Message) error
 }
@@ -22,51 +21,46 @@ type Config struct {
 }
 
 func New(config *Config) (*TgBot, error) {
-	botApi, err := tgbotapi.NewBotAPI(config.AuthToken)
+	bot, err := telego.NewBot(config.AuthToken, telego.WithDefaultDebugLogger())
 	if err != nil {
 		return nil, err
 	}
 
-	slog.Info("Tg connected", slog.Any("botApi", botApi.Self))
-
-	return &TgBot{config: config, client: botApi}, nil
-}
-
-func (tg *TgBot) SetDebug() {
-	tg.client.Debug = true
+	return &TgBot{
+		config: config,
+		bot: bot,
+	}, nil
 }
 
 func (tg *TgBot) SetUpdateHandlerMessage(updateHandlerMessage func(msg *model.Message) error) {
 	tg.updateHandlerMessage = updateHandlerMessage
 }
 
-func (tg *TgBot) ListenToUpdates() {
-	// Create a new UpdateConfig struct with an offset of 0. Offsets are used
-	// to make sure Telegram knows we've handled previous values and we don't
-	// need them repeated.
-	updateConfig := tgbotapi.NewUpdate(0) // TODO: how to make offset
-	// Tell Telegram we should wait up to 30 seconds on each request for an
-	// update. This way we can get information just as quickly as making many
-	// frequent requests without having to send nearly as many.
-	updateConfig.Timeout = 30
+func (tg *TgBot) ListenToUpdates() error {
+	// Get updates channel
+	// (more on configuration in examples/updates_long_polling/main.go)
+	updates, err := tg.bot.UpdatesViaLongPolling(nil)
+	if err != nil {
+		return err
+	}
 
-	// Start polling Telegram for updates.
-	updates := tg.client.GetUpdatesChan(updateConfig)
-	// Let's go through each update that we're getting from Telegram.
+	// Stop reviving updates from update channel
+	defer tg.bot.StopLongPolling()
+
+	// Loop through all updates when they came
 	for update := range updates {
-		// Telegram can send many types of updates depending on what your Bot
-		// is up to. We only want to look at messages for now, so we can
-		// discard any other updates.
 		if update.Message != nil {
 			err := tg.updateHandlerMessage(convertTgMessageToMessage(update.Message))
 			if err != nil {
 				slog.Error("Error while handling a tg msg", slog.Any("err", err), slog.Any("msg", update.Message))
-			}
+			}	
 		}
 	}
+
+	return nil
 }
 
-func convertTgMessageToMessage(tgMsg *tgbotapi.Message) *model.Message {
+func convertTgMessageToMessage(tgMsg *telego.Message) *model.Message {
 	return &model.Message{
 		CreatedAt: tgMsg.Date,
 		MessageId: strconv.Itoa(tgMsg.MessageID),

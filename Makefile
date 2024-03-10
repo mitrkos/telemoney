@@ -4,6 +4,9 @@ run_gsheet:
 run_tg:
 	go run ./cmd/telegram_test/main.go
 
+go_clean_dependencies:
+	go mod tidy
+
 run_telemoney:
 	go run ./cmd/telemoney/main.go
 

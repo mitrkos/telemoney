@@ -6,9 +6,8 @@ import (
 
 	"github.com/mitrkos/telemoney/internal/model"
 	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
-
-	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
+	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 )
 
 func Start() error {
@@ -30,7 +29,6 @@ func Start() error {
 		slog.Error("can't connect to tg", slog.Any("err", err))
 		return err
 	}
-	tgBot.SetDebug()
 
 	gsheetConfig := gsheetclient.Config{
 		AuthToken:          config.GSheetsAuthToken,
@@ -49,7 +47,11 @@ func Start() error {
 	parser := parsing.New()
 
 	tgBot.SetUpdateHandlerMessage(makeHandleTgMessage(parser, gSheetsClient))
-	tgBot.ListenToUpdates()
+	err = tgBot.ListenToUpdates()
+	if err != nil {
+		slog.Error("problem with listening to tg", slog.Any("err", err))
+		return err
+	}
 
 	return nil
 }
