@@ -3,6 +3,7 @@ package model
 type Message struct {
 	CreatedAt int64
 	MessageId string
+	IsEdited bool
 	Text      string
 }
 

@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/mitrkos/telemoney/internal/model"
+	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
 	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
-	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 )
 
 func Start() error {
@@ -58,6 +58,11 @@ func Start() error {
 
 func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSheetsClient) func(msg *model.Message) error {
 	return func(msg *model.Message) error {
+		if msg.IsEdited {
+			// skip edited for now
+			return nil
+		}
+
 		transaction, err := convertMessageIntoTransaction(parser, msg)
 		if err != nil {
 			return err

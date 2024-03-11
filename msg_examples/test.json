@@ -1,0 +1,79 @@
+[
+    {
+        "update_id": 507552421,
+        "message": {
+            "message_id": 6,
+            "from": {
+                "id": 350630952,
+                "is_bot": false,
+                "first_name": "Konstantin",
+                "last_name": "Mitrakov",
+                "username": "mitrkos",
+                "language_code": "en"
+            },
+            "chat": {
+                "id": 350630952,
+                "first_name": "Konstantin",
+                "last_name": "Mitrakov",
+                "username": "mitrkos",
+                "type": "private"
+            },
+            "date": 1710174793,
+            "text": "7474 test2"
+        }
+    },
+    {
+        "update_id": 507552422,
+        "edited_message": {
+            "message_id": 6,
+            "from": {
+                "id": 350630952,
+                "is_bot": false,
+                "first_name": "Konstantin",
+                "last_name": "Mitrakov",
+                "username": "mitrkos",
+                "language_code": "en"
+            },
+            "chat": {
+                "id": 350630952,
+                "first_name": "Konstantin",
+                "last_name": "Mitrakov",
+                "username": "mitrkos",
+                "type": "private"
+            },
+            "date": 1710174793,
+            "edit_date": 1710174805,
+            "text": "7474 test2 edited"
+        }
+    },
+    {
+        "update_id": 507552423,
+        "message": {
+            "message_id": 7,
+            "from": {
+                "id": 350630952,
+                "is_bot": false,
+                "first_name": "Konstantin",
+                "last_name": "Mitrakov",
+                "username": "mitrkos",
+                "language_code": "en"
+            },
+            "chat": {
+                "id": 350630952,
+                "first_name": "Konstantin",
+                "last_name": "Mitrakov",
+                "username": "mitrkos",
+                "type": "private"
+            },
+            "date": 1710175119,
+            "text": "/start",
+            "entities": [
+                {
+                    "offset": 0,
+                    "length": 6,
+                    "type": "bot_command"
+                }
+            ]
+        }
+    }
+]

@@ -2,7 +2,7 @@ run_gsheet:
 	go run ./cmd/gsheet_test/main.go
 
 run_tg:
-	go run ./cmd/telegram_test/main.go
+	go run ./cmd/tg_test/main.go
 
 go_clean_dependencies:
 	go mod tidy

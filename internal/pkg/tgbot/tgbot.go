@@ -49,21 +49,67 @@ func (tg *TgBot) ListenToUpdates() error {
 
 	// Loop through all updates when they came
 	for update := range updates {
+		var tgMessage *telego.Message
+		isEdited := false
+
 		if update.Message != nil {
-			err := tg.updateHandlerMessage(convertTgMessageToMessage(update.Message))
-			if err != nil {
-				slog.Error("Error while handling a tg msg", slog.Any("err", err), slog.Any("msg", update.Message))
-			}	
+			tgMessage = update.Message
+		}
+		if update.EditedMessage != nil {
+			tgMessage = update.EditedMessage
+			isEdited = true
+		}
+
+		if tgMessage == nil {
+			continue
+		}
+		
+		err := tg.updateHandlerMessage(convertTgMessageToMessage(tgMessage, isEdited))
+		if err == nil {
+			tg.bot.SetMessageReaction(
+				&telego.SetMessageReactionParams{
+					ChatID: tgMessage.Chat.ChatID(),
+					MessageID: tgMessage.MessageID,
+					Reaction: setReactionSuccessEmoji(),
+					IsBig: true,
+				},
+			)
+		} else {
+			slog.Error("Error while handling a tg msg", slog.Any("err", err), slog.Any("msg", tgMessage))
+			tg.bot.SetMessageReaction(
+				&telego.SetMessageReactionParams{
+					ChatID: tgMessage.Chat.ChatID(),
+					MessageID: tgMessage.MessageID,
+					Reaction: setReactionUnknownMessageEmoji(),
+					IsBig: true,
+				},
+			)
 		}
 	}
 
 	return nil
 }
 
-func convertTgMessageToMessage(tgMsg *telego.Message) *model.Message {
+func convertTgMessageToMessage(tgMsg *telego.Message, isEdited bool) *model.Message {
 	return &model.Message{
 		CreatedAt: tgMsg.Date,
 		MessageId: strconv.Itoa(tgMsg.MessageID),
+		IsEdited: isEdited,
 		Text:      tgMsg.Text,
 	}
+}
+
+
+func setReactionUnknownMessageEmoji() []telego.ReactionType {
+	return []telego.ReactionType{&telego.ReactionTypeEmoji{
+		Type: telego.ReactionEmoji,
+		Emoji: "🤷‍♂",
+	}}
+}
+
+func setReactionSuccessEmoji() []telego.ReactionType {
+	return []telego.ReactionType{&telego.ReactionTypeEmoji{
+		Type: telego.ReactionEmoji,
+		Emoji: "👌",
+	}}
 }
