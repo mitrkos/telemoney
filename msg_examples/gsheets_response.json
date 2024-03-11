@@ -1,0 +1,47 @@
+{
+    "spreadsheetId": "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs",
+    "valueRanges": [
+        {
+            "dataFilters": [
+                {
+                    "a1Range": "transaction_test!B1:B"
+                }
+            ],
+            "valueRange": {
+                "majorDimension": "COLUMNS",
+                "range": "transaction_test!B1:B1054",
+                "values": [
+                    [
+                        "",
+                        "message_id",
+                        "88",
+                        "89",
+                        "90",
+                        "91",
+                        "",
+                        "92",
+                        "95",
+                        "96",
+                        "97",
+                        "98",
+                        "99",
+                        "100",
+                        "101",
+                        "102",
+                        "103",
+                        "104",
+                        "2",
+                        "107",
+                        "108",
+                        "110",
+                        "3",
+                        "4",
+                        "5",
+                        "11",
+                        "12"
+                    ]
+                ]
+            }
+        }
+    ]
+}

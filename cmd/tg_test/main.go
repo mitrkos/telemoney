@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	tgToken, ok := os.LookupEnv("TELEMONEY_TG_BOT_TOKEN_TEST")
 	if !ok {
 		panic("Env var with tg token not found")

@@ -69,7 +69,7 @@ func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSh
 		}
 
 		if transaction != nil {
-			gSheetsClient.WriteDataRow(convertTransactionToDataRow(transaction))
+			gSheetsClient.AppendDataRow(convertTransactionToDataRow(transaction))
 		}
 
 		return nil
