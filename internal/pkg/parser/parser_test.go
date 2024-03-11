@@ -136,6 +136,10 @@ func TestParser_ParseTransactionUserInputDataFromTextValidationError(t *testing.
 			name: "no Category",
 			text: "9,5",
 		},
+		{
+			name: "no Category 2",
+			text: "9,5 (Grenka)",
+		},
 	}
 
 	for _, tc := range testCases {
