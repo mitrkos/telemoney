@@ -65,12 +65,14 @@ func (tg *TgBot) ListenToUpdates() error {
 		}
 		
 		err := tg.updateHandlerMessage(convertTgMessageToMessage(tgMessage, isEdited))
+
+		// TODO: move this logic to handler
 		if err == nil {
 			tg.bot.SetMessageReaction(
 				&telego.SetMessageReactionParams{
 					ChatID: tgMessage.Chat.ChatID(),
 					MessageID: tgMessage.MessageID,
-					Reaction: setReactionSuccessEmoji(),
+					Reaction: makeReactionUnknownMessageEmoji(),
 					IsBig: true,
 				},
 			)
@@ -80,7 +82,7 @@ func (tg *TgBot) ListenToUpdates() error {
 				&telego.SetMessageReactionParams{
 					ChatID: tgMessage.Chat.ChatID(),
 					MessageID: tgMessage.MessageID,
-					Reaction: setReactionUnknownMessageEmoji(),
+					Reaction: makeReactionSuccessEmoji(),
 					IsBig: true,
 				},
 			)
@@ -99,15 +101,14 @@ func convertTgMessageToMessage(tgMsg *telego.Message, isEdited bool) *model.Mess
 	}
 }
 
-
-func setReactionUnknownMessageEmoji() []telego.ReactionType {
+func makeReactionUnknownMessageEmoji() []telego.ReactionType {
 	return []telego.ReactionType{&telego.ReactionTypeEmoji{
 		Type: telego.ReactionEmoji,
 		Emoji: "🤷‍♂",
 	}}
 }
 
-func setReactionSuccessEmoji() []telego.ReactionType {
+func makeReactionSuccessEmoji() []telego.ReactionType {
 	return []telego.ReactionType{&telego.ReactionTypeEmoji{
 		Type: telego.ReactionEmoji,
 		Emoji: "👌",
