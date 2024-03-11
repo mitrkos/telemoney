@@ -72,7 +72,7 @@ func (tg *TgBot) ListenToUpdates() error {
 				&telego.SetMessageReactionParams{
 					ChatID: tgMessage.Chat.ChatID(),
 					MessageID: tgMessage.MessageID,
-					Reaction: makeReactionUnknownMessageEmoji(),
+					Reaction: makeReactionSuccessEmoji(),
 					IsBig: true,
 				},
 			)
@@ -82,7 +82,7 @@ func (tg *TgBot) ListenToUpdates() error {
 				&telego.SetMessageReactionParams{
 					ChatID: tgMessage.Chat.ChatID(),
 					MessageID: tgMessage.MessageID,
-					Reaction: makeReactionSuccessEmoji(),
+					Reaction: makeReactionUnknownMessageEmoji(),
 					IsBig: true,
 				},
 			)
