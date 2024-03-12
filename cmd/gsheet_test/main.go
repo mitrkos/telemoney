@@ -27,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	location, err := gSheetsClient.FindValueLocation("102", &gsheetclient.A1Range{
+	location, err := gSheetsClient.FindValueLocation(&gsheetclient.A1Range{
 		SheetId: gsheetConfig.TransactionSheetID,
 		LeftTop: gsheetclient.A1Location{
 			Column: "B",
@@ -36,13 +36,23 @@ func main() {
 		RightBottom: gsheetclient.A1Location{
 			Column: "B",
 		},
-	})
+	}, "103")
 	slog.Info("found location", slog.Any("location", location))
 	if err != nil {
 		panic(err)
 	}
 
-	 err = gSheetsClient.ClearRange(&gsheetclient.A1Range{
+
+	newDataRow := make([]interface{}, 6)
+	newDataRow[0] = 1234567
+	newDataRow[1] = "103"
+	newDataRow[2] = 123.5
+	newDataRow[3] = "test_update"
+	newDataRow[4] = "sazda, asd"
+	newDataRow[5] = "Let's test"
+
+
+	gSheetsClient.UpdateDataRange(&gsheetclient.A1Range{
 		SheetId: gsheetConfig.TransactionSheetID,
 		LeftTop: gsheetclient.A1Location{
 			Column: "A",
@@ -52,7 +62,7 @@ func main() {
 			Column: "F",
 			Row: location.Row,
 		},
-	})
+	}, newDataRow)
 	if err != nil {
 		panic(err)
 	}

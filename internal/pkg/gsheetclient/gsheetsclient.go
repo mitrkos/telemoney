@@ -67,7 +67,7 @@ func (gsc *GSheetsClient) AppendDataRow(dataRow []interface{}) {
 	}
 }
 
-func (gsc *GSheetsClient) EditDataRow(dataRow []interface{}, updateRange *A1Range) {
+func (gsc *GSheetsClient) UpdateDataRange(updateRange *A1Range, dataRow []interface{}) {
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{dataRow},
 	}
@@ -79,9 +79,9 @@ func (gsc *GSheetsClient) EditDataRow(dataRow []interface{}, updateRange *A1Rang
 	}
 }
 
-func (gsc *GSheetsClient) FindValueLocation(searchValue string, searchRange *A1Range) (*A1Location, error) {
+func (gsc *GSheetsClient) FindValueLocation(searchRange *A1Range, searchValue string) (*A1Location, error) {
 	response, err := gsc.service.Spreadsheets.Values.Get(gsc.config.SpreadsheetID, searchRange.String()).Do()
-	if err != nil {
+	if err != nil || response.HTTPStatusCode != 200 {
 		return nil, err
 	}
 	respJson, err := json.Marshal(response)
