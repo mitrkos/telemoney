@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/mitrkos/telemoney/internal/app/telemoney/storage"
+	"github.com/mitrkos/telemoney/internal/app/telemoney/storage/gsheetstorage"
 	"github.com/mitrkos/telemoney/internal/model"
 	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
@@ -31,12 +33,8 @@ func Start() error {
 	}
 
 	gsheetConfig := gsheetclient.Config{
-		AuthToken:          config.GSheetsAuthToken,
-		SpreadsheetID:      config.SpreadsheetID,
-		TransactionSheetID: config.TransactionSheetIDTest,
-	}
-	if config.Env == "prod" {
-		gsheetConfig.TransactionSheetID = config.TransactionSheetID
+		AuthToken:     config.GSheetsAuthToken,
+		SpreadsheetID: config.SpreadsheetID,
 	}
 	gSheetsClient, err := gsheetclient.New(&gsheetConfig)
 	if err != nil {
@@ -44,9 +42,15 @@ func Start() error {
 		return err
 	}
 
+	transactionSheetID := config.TransactionSheetIDTest
+	if config.Env == "prod" {
+		transactionSheetID = config.TransactionSheetID
+	}
+	transactionStorage := gsheetstorage.New(gSheetsClient, transactionSheetID)
+
 	parser := parsing.New()
 
-	tgBot.SetUpdateHandlerMessage(makeHandleTgMessage(parser, gSheetsClient))
+	tgBot.SetUpdateHandlerMessage(makeHandleTgMessage(parser, transactionStorage))
 	err = tgBot.ListenToUpdates()
 	if err != nil {
 		slog.Error("problem with listening to tg", slog.Any("err", err))
@@ -56,20 +60,19 @@ func Start() error {
 	return nil
 }
 
-func makeHandleTgMessage(parser *parsing.Parser, gSheetsClient *gsheetclient.GSheetsClient) func(msg *model.Message) error {
+func makeHandleTgMessage(parser *parsing.Parser, storage storage.TransactionRepository) func(msg *model.Message) error {
 	return func(msg *model.Message) error {
-		if msg.IsEdited {
-			// skip edited for now
-			return nil
-		}
-
 		transaction, err := convertMessageIntoTransaction(parser, msg)
 		if err != nil {
 			return err
 		}
 
 		if transaction != nil {
-			gSheetsClient.AppendDataRow(convertTransactionToDataRow(transaction))
+			if msg.IsEdited {
+				storage.Update(transaction)
+			} else {
+				storage.Insert(transaction)
+			}
 		}
 
 		return nil
@@ -88,7 +91,7 @@ func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.Message) (
 
 	return &model.Transaction{
 		CreatedAt: msg.CreatedAt,
-		MessageId: msg.MessageId,
+		MessageID: msg.MessageID,
 		Amount:    userInputData.Amount,
 		Category:  userInputData.Category,
 		Tags:      userInputData.Tags,
@@ -100,7 +103,7 @@ func convertTransactionToDataRow(transaction *model.Transaction) []interface{} {
 	dataRow := make([]interface{}, 6)
 
 	dataRow[0] = transaction.CreatedAt
-	dataRow[1] = transaction.MessageId
+	dataRow[1] = transaction.MessageID
 	dataRow[2] = transaction.Amount
 	dataRow[3] = transaction.Category
 	if len(transaction.Tags) > 0 {

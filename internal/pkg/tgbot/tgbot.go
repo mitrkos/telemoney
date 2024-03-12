@@ -95,7 +95,7 @@ func (tg *TgBot) ListenToUpdates() error {
 func convertTgMessageToMessage(tgMsg *telego.Message, isEdited bool) *model.Message {
 	return &model.Message{
 		CreatedAt: tgMsg.Date,
-		MessageId: strconv.Itoa(tgMsg.MessageID),
+		MessageID: strconv.Itoa(tgMsg.MessageID),
 		IsEdited: isEdited,
 		Text:      tgMsg.Text,
 	}

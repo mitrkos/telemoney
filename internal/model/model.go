@@ -2,14 +2,14 @@ package model
 
 type Message struct {
 	CreatedAt int64
-	MessageId string
+	MessageID string
 	IsEdited bool
 	Text      string
 }
 
 type Transaction struct {
 	CreatedAt int64
-	MessageId string
+	MessageID string
 	Amount    float64
 	Category  string
 	Tags      []string

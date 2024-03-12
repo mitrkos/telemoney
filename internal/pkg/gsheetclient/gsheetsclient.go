@@ -21,9 +21,8 @@ type GSheetsClient struct {
 }
 
 type Config struct {
-	AuthToken          string
-	SpreadsheetID      string
-	TransactionSheetID string
+	AuthToken     string
+	SpreadsheetID string
 }
 
 func New(config *Config) (*GSheetsClient, error) {
@@ -55,12 +54,12 @@ func New(config *Config) (*GSheetsClient, error) {
 	return gsc, nil
 }
 
-func (gsc *GSheetsClient) AppendDataRow(dataRow []interface{}) {
+func (gsc *GSheetsClient) AppendDataToRange(appendRange *A1Range, dataRow []interface{}) {
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{dataRow},
 	}
 
-	response, err := gsc.service.Spreadsheets.Values.Append(gsc.config.SpreadsheetID, gsc.config.TransactionSheetID, row).ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").Do()
+	response, err := gsc.service.Spreadsheets.Values.Append(gsc.config.SpreadsheetID, appendRange.String(), row).ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").Do()
 	if err != nil || response.HTTPStatusCode != 200 {
 		slog.Error("Append data to gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow))
 		return
@@ -116,7 +115,6 @@ func (gsc *GSheetsClient) FindValueLocation(searchRange *A1Range, searchValue st
 	}, nil
 }
 
-
 func (gsc *GSheetsClient) ClearRange(deleteRange *A1Range) error {
 	response, err := gsc.service.Spreadsheets.Values.Clear(gsc.config.SpreadsheetID, deleteRange.String(), &sheets.ClearValuesRequest{}).Do()
 	if err != nil {
@@ -135,8 +133,8 @@ type A1Location struct {
 
 type A1Range struct {
 	SheetId     string
-	LeftTop     A1Location
-	RightBottom A1Location
+	LeftTop     *A1Location
+	RightBottom *A1Location
 }
 
 func (l *A1Location) String() string {
@@ -148,10 +146,14 @@ func (l *A1Location) String() string {
 }
 
 func (r *A1Range) String() string {
-	result := r.SheetId + "!"
-	result += r.LeftTop.String()
-	result += ":"
-	result += r.RightBottom.String()
+	result := r.SheetId
+	if r.LeftTop != nil {
+		result += "!" + r.LeftTop.String()
+
+		if r.RightBottom != nil {
+			result += ":" + r.RightBottom.String()
+		}
+	}
 	return result
 }
 
@@ -164,4 +166,3 @@ func toStrAlphabetic(i int) string {
 func toIntAlphabetic(symbol string) int {
 	return strings.Index(abc, symbol) + 1
 }
-
