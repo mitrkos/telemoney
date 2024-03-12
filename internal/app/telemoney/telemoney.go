@@ -98,21 +98,3 @@ func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.Message) (
 		Comment:   userInputData.Comment,
 	}, nil
 }
-
-func convertTransactionToDataRow(transaction *model.Transaction) []interface{} {
-	dataRow := make([]interface{}, 6)
-
-	dataRow[0] = transaction.CreatedAt
-	dataRow[1] = transaction.MessageID
-	dataRow[2] = transaction.Amount
-	dataRow[3] = transaction.Category
-	if len(transaction.Tags) > 0 {
-		tagsStr := strings.Join(transaction.Tags[:], ",")
-		dataRow[4] = tagsStr
-	}
-	if transaction.Comment != nil {
-		dataRow[5] = *transaction.Comment
-	}
-
-	return dataRow
-}
