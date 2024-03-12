@@ -2,7 +2,6 @@ package telemoney
 
 import (
 	"log/slog"
-	"strings"
 
 	"github.com/mitrkos/telemoney/internal/app/telemoney/storage"
 	"github.com/mitrkos/telemoney/internal/app/telemoney/storage/gsheetstorage"
