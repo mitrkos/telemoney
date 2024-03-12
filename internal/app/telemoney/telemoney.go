@@ -59,7 +59,7 @@ func Start() error {
 	return nil
 }
 
-func makeHandleTgMessage(parser *parsing.Parser, storage storage.TransactionRepository) func(msg *model.Message) error {
+func makeHandleTgMessage(parser *parsing.Parser, transactionStorage storage.TransactionStorage) func(msg *model.Message) error {
 	return func(msg *model.Message) error {
 		transaction, err := convertMessageIntoTransaction(parser, msg)
 		if err != nil {
@@ -68,9 +68,9 @@ func makeHandleTgMessage(parser *parsing.Parser, storage storage.TransactionRepo
 
 		if transaction != nil {
 			if msg.IsEdited {
-				storage.Update(transaction)
+				transactionStorage.Update(transaction)
 			} else {
-				storage.Insert(transaction)
+				transactionStorage.Insert(transaction)
 			}
 		}
 

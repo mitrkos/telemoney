@@ -7,15 +7,15 @@ import (
 	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 )
 
-type TransactionRepository struct {
+type TransactionStorage struct {
 	gsheetclient           *gsheetclient.GSheetsClient
 	transactionSheetId     string
 	transactionMessageIDScanRange *gsheetclient.A1Range
 }
 
-func New(gsheetclient *gsheetclient.GSheetsClient, transactionSheetId string) *TransactionRepository {
+func New(gsheetclient *gsheetclient.GSheetsClient, transactionSheetId string) *TransactionStorage {
 	// TODO: move gsheetclient creation to here
-	trr := &TransactionRepository{
+	trr := &TransactionStorage{
 		gsheetclient:           gsheetclient,
 		transactionSheetId:     transactionSheetId,
 		transactionMessageIDScanRange: nil,
@@ -24,12 +24,12 @@ func New(gsheetclient *gsheetclient.GSheetsClient, transactionSheetId string) *T
 	return trr
 }
 
-func (trr *TransactionRepository) Insert(transaction *model.Transaction) error {
+func (trr *TransactionStorage) Insert(transaction *model.Transaction) error {
 	trr.gsheetclient.AppendDataToRange(trr.makeRangeForSheet(nil, nil), convertTransactionToDataRow(transaction))
 	return nil // TODO: add errors
 }
 
-func (trr *TransactionRepository) Update(transaction *model.Transaction) error {
+func (trr *TransactionStorage) Update(transaction *model.Transaction) error {
 	msgIDLocation, err := trr.gsheetclient.FindValueLocation(trr.transactionMessageIDScanRange, transaction.MessageID)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (trr *TransactionRepository) Update(transaction *model.Transaction) error {
 	return nil // TODO: add errors
 }
 
-func (trr *TransactionRepository) DeleteByMessageId(transactionMessageID string) error {
+func (trr *TransactionStorage) DeleteByMessageId(transactionMessageID string) error {
 	msgIDLocation, err := trr.gsheetclient.FindValueLocation(trr.transactionMessageIDScanRange, transactionMessageID)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (trr *TransactionRepository) DeleteByMessageId(transactionMessageID string)
 	return nil // TODO: add errors
 }
 
-func (trr *TransactionRepository) makeRangeForSheet(leftTop *gsheetclient.A1Location, rightBottom *gsheetclient.A1Location) *gsheetclient.A1Range {
+func (trr *TransactionStorage) makeRangeForSheet(leftTop *gsheetclient.A1Location, rightBottom *gsheetclient.A1Location) *gsheetclient.A1Range {
 	return &gsheetclient.A1Range{
 		SheetId:     trr.transactionSheetId,
 		LeftTop:     leftTop,
@@ -63,7 +63,7 @@ func (trr *TransactionRepository) makeRangeForSheet(leftTop *gsheetclient.A1Loca
 	}
 }
 
-func (trr *TransactionRepository) makeTransactionMessageIdScanRange() *gsheetclient.A1Range {
+func (trr *TransactionStorage) makeTransactionMessageIdScanRange() *gsheetclient.A1Range {
 	return trr.makeRangeForSheet(&gsheetclient.A1Location{
 		Column: "B", // TODO: add schema mapping
 		Row:    3,
@@ -73,7 +73,7 @@ func (trr *TransactionRepository) makeTransactionMessageIdScanRange() *gsheetcli
 	})
 }
 
-func (trr *TransactionRepository) makeTransactionRowRangeFromLocation(location *gsheetclient.A1Location) *gsheetclient.A1Range {
+func (trr *TransactionStorage) makeTransactionRowRangeFromLocation(location *gsheetclient.A1Location) *gsheetclient.A1Range {
 	return trr.makeRangeForSheet(&gsheetclient.A1Location{
 		Column: "A", // TODO: add schema mapping
 		Row:    location.Row,
