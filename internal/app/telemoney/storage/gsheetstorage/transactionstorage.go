@@ -3,6 +3,7 @@ package gsheetstorage
 import (
 	"strings"
 
+	"github.com/mitrkos/telemoney/internal/app/telemoney/storage"
 	"github.com/mitrkos/telemoney/internal/model"
 	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 )
@@ -35,7 +36,7 @@ func (trr *TransactionStorage) Update(transaction *model.Transaction) error {
 		return err
 	}
 	if msgIDLocation == nil {
-		return nil // TODO: ? not found error
+		return storage.ErrTransactionNotFound
 	}
 
 	trr.gsheetclient.UpdateDataRange(trr.makeTransactionRowRangeFromLocation(msgIDLocation), convertTransactionToDataRow(transaction))
@@ -48,7 +49,7 @@ func (trr *TransactionStorage) DeleteByMessageId(transactionMessageID string) er
 		return err
 	}
 	if msgIDLocation == nil {
-		return nil // TODO: ? not found error
+		return storage.ErrTransactionNotFound
 	}
 
 	trr.gsheetclient.ClearRange(trr.makeTransactionRowRangeFromLocation(msgIDLocation))

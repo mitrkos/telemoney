@@ -1,7 +1,13 @@
 package storage
 
-import "github.com/mitrkos/telemoney/internal/model"
+import (
+	"errors"
 
+	"github.com/mitrkos/telemoney/internal/model"
+)
+
+
+var ErrTransactionNotFound = errors.New("transaction not found")
 
 type TransactionStorage interface {
 	Insert(*model.Transaction) error

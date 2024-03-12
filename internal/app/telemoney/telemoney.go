@@ -1,6 +1,7 @@
 package telemoney
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/mitrkos/telemoney/internal/app/telemoney/storage"
@@ -66,15 +67,23 @@ func makeHandleTgMessage(parser *parsing.Parser, transactionStorage storage.Tran
 			return err
 		}
 
-		if transaction != nil {
-			if msg.IsEdited {
-				transactionStorage.Update(transaction)
-			} else {
-				transactionStorage.Insert(transaction)
+		if transaction == nil {
+			return err
+		}
+
+		if msg.IsEdited {
+			err = transactionStorage.Update(transaction)
+			if err == nil {
+				return nil
 			}
 		}
 
-		return nil
+
+		if !msg.IsEdited || errors.Is(err, storage.ErrTransactionNotFound) {
+			err = transactionStorage.Insert(transaction)
+		}
+
+		return err
 	}
 }
 
