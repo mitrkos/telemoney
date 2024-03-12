@@ -3,6 +3,7 @@ version: '3.8'
 services:
   telemoney:
     image: mitrkosmitrkos/telemoney:latest
+    pull-policy: always
     build:
       context: .
     environment:
