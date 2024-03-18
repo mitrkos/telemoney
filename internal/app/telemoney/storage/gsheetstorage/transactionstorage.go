@@ -26,34 +26,43 @@ func New(gsheetclient *gsheetclient.GSheetsClient, transactionSheetId string) *T
 }
 
 func (trr *TransactionStorage) Insert(transaction *model.Transaction) error {
-	trr.gsheetclient.AppendDataToRange(trr.makeTransactionAppendRange(), convertTransactionToDataRow(transaction))
-	return nil // TODO: add errors
+	err := trr.gsheetclient.AppendDataToRange(trr.makeTransactionAppendRange(), convertTransactionToDataRow(transaction))
+	if err != nil {
+		return storage.ErrOperationFailed
+	}
+	return nil
 }
 
 func (trr *TransactionStorage) Update(transaction *model.Transaction) error {
 	msgIDLocation, err := trr.gsheetclient.FindValueLocation(trr.transactionMessageIDScanRange, transaction.MessageID)
 	if err != nil {
-		return err
+		return storage.ErrOperationFailed
 	}
 	if msgIDLocation == nil {
 		return storage.ErrTransactionNotFound
 	}
 
-	trr.gsheetclient.UpdateDataRange(trr.makeTransactionRowRangeFromLocation(msgIDLocation), convertTransactionToDataRow(transaction))
-	return nil // TODO: add errors
+	err = trr.gsheetclient.UpdateDataRange(trr.makeTransactionRowRangeFromLocation(msgIDLocation), convertTransactionToDataRow(transaction))
+	if err != nil {
+		return storage.ErrOperationFailed
+	}
+	return nil 
 }
 
 func (trr *TransactionStorage) DeleteByMessageId(transactionMessageID string) error {
 	msgIDLocation, err := trr.gsheetclient.FindValueLocation(trr.transactionMessageIDScanRange, transactionMessageID)
 	if err != nil {
-		return err
+		return storage.ErrOperationFailed
 	}
 	if msgIDLocation == nil {
 		return storage.ErrTransactionNotFound
 	}
 
-	trr.gsheetclient.ClearRange(trr.makeTransactionRowRangeFromLocation(msgIDLocation))
-	return nil // TODO: add errors
+	err = trr.gsheetclient.ClearRange(trr.makeTransactionRowRangeFromLocation(msgIDLocation))
+	if err != nil {
+		return storage.ErrOperationFailed
+	}
+	return nil
 }
 
 func (trr *TransactionStorage) makeSheetRange(leftTop *gsheetclient.A1Location, rightBottom *gsheetclient.A1Location) *gsheetclient.A1Range {

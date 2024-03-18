@@ -3,7 +3,6 @@ package gsheetclient
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -54,37 +53,47 @@ func New(config *Config) (*GSheetsClient, error) {
 	return gsc, nil
 }
 
-func (gsc *GSheetsClient) AppendDataToRange(appendRange *A1Range, dataRow []interface{}) {
+func (gsc *GSheetsClient) AppendDataToRange(appendRange *A1Range, dataRow []interface{}) error {
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{dataRow},
 	}
 
 	response, err := gsc.service.Spreadsheets.Values.Append(gsc.config.SpreadsheetID, appendRange.String(), row).ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").Do()
-	if err != nil || response.HTTPStatusCode != 200 {
+	if err = parseGSheetAPIError(err, response.HTTPStatusCode); err != nil {
 		slog.Error("Append data to gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow))
-		return
+		return err
 	}
+	return nil
 }
 
-func (gsc *GSheetsClient) UpdateDataRange(updateRange *A1Range, dataRow []interface{}) {
+func (gsc *GSheetsClient) UpdateDataRange(updateRange *A1Range, dataRow []interface{}) error {
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{dataRow},
 	}
 
 	response, err := gsc.service.Spreadsheets.Values.Update(gsc.config.SpreadsheetID, updateRange.String(), row).ValueInputOption("USER_ENTERED").Do()
-	if err != nil || response.HTTPStatusCode != 200 {
+	if err = parseGSheetAPIError(err, response.HTTPStatusCode); err != nil {
 		slog.Error("Update data to gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow), slog.Any("updateRange", updateRange))
-		return
+		return err
 	}
+	return nil
+}
+
+func (gsc *GSheetsClient) ClearRange(deleteRange *A1Range) error {
+	response, err := gsc.service.Spreadsheets.Values.Clear(gsc.config.SpreadsheetID, deleteRange.String(), &sheets.ClearValuesRequest{}).Do()
+	if err = parseGSheetAPIError(err, response.HTTPStatusCode); err != nil {
+		slog.Error("Clear data in gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("deleteRange", deleteRange))
+		return err
+	}
+	return nil
 }
 
 func (gsc *GSheetsClient) FindValueLocation(searchRange *A1Range, searchValue string) (*A1Location, error) {
 	response, err := gsc.service.Spreadsheets.Values.Get(gsc.config.SpreadsheetID, searchRange.String()).Do()
-	if err != nil || response.HTTPStatusCode != 200 {
+	if err = parseGSheetAPIError(err, response.HTTPStatusCode); err != nil {
+		slog.Error("Find data in gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("searchRange", searchRange))
 		return nil, err
 	}
-	respJson, err := json.Marshal(response)
-	slog.Info("gsheet get response", slog.Any("respJson", string(respJson)), slog.Any("err", err))
 
 	searchValueColumnIdx := -1
 	searchValueRowIdx := -1
@@ -115,14 +124,13 @@ func (gsc *GSheetsClient) FindValueLocation(searchRange *A1Range, searchValue st
 	}, nil
 }
 
-func (gsc *GSheetsClient) ClearRange(deleteRange *A1Range) error {
-	response, err := gsc.service.Spreadsheets.Values.Clear(gsc.config.SpreadsheetID, deleteRange.String(), &sheets.ClearValuesRequest{}).Do()
+func parseGSheetAPIError(err error, httpStatusCode int) error {
 	if err != nil {
 		return err
 	}
-	respJson, err := json.Marshal(response)
-	slog.Info("gsheet clear response", slog.Any("respJson", string(respJson)), slog.Any("err", err))
-
+	if httpStatusCode != 200 {
+		return fmt.Errorf("gsheet connection error: %d", httpStatusCode)
+	}
 	return nil
 }
 

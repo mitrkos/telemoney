@@ -8,6 +8,7 @@ import (
 
 
 var ErrTransactionNotFound = errors.New("transaction not found")
+var ErrOperationFailed = errors.New("operation failed")
 
 type TransactionStorage interface {
 	Insert(*model.Transaction) error
