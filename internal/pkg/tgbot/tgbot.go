@@ -6,6 +6,8 @@ import (
 
 	"github.com/mitrkos/telemoney/internal/model"
 	"github.com/mymmrac/telego"
+	"github.com/mymmrac/telego/telegohandler"
+	"github.com/mymmrac/telego/telegoutil"
 )
 
 type TgBot struct {
@@ -89,6 +91,42 @@ func (tg *TgBot) ListenToUpdates() error {
 		}
 	}
 
+	return nil
+}
+
+func (tg *TgBot) ListenToUpdatesUsingHandlers() error {
+	// Get updates channel
+	// (more on configuration in examples/updates_long_polling/main.go)
+	updates, err := tg.bot.UpdatesViaLongPolling(nil)
+	if err != nil {
+		return err
+	}
+
+	handler, _ := telegohandler.NewBotHandler(tg.bot, updates)
+
+	// Stop handling updates
+	defer handler.Stop()
+	// Stop reviving updates from update channel
+	defer tg.bot.StopLongPolling()
+
+	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+		// Send message
+		_, _ = bot.SendMessage(telegoutil.Messagef(
+			telegoutil.ID(update.Message.Chat.ID),
+			"Hello %s!", update.Message.From.FirstName,
+		))
+	}, telegohandler.CommandEqual("start"))
+
+	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+		// Send message
+		_, _ = bot.SendMessage(telegoutil.Message(
+			telegoutil.ID(update.Message.Chat.ID),
+			"Unknown command, use /start",
+		))
+	}, telegohandler.AnyCommand())
+
+	// Start handling updates
+	handler.Start()
 	return nil
 }
 
