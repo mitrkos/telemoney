@@ -17,7 +17,7 @@ func New(tgbot *tgbot.TgBot) *TgBotMessageHandler {
 }
 
 func (tgh *TgBotMessageHandler) ListenToUpdates() error {
-	return tgh.tgbot.ListenToUpdatesUsingHandlers()
+	return tgh.tgbot.ListenToUpdates()
 }
 
 func (tgh *TgBotMessageHandler) SetUpdateHandlerStartCommand(handler func()) {

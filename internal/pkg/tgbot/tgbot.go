@@ -60,7 +60,7 @@ func (tg *TgBot) SetUpdateHandlerEditedMessage(handler func(*model.MessageToHand
 	tg.updateHandlerEditedMessage = handler
 }
 
-func (tg *TgBot) ListenToUpdatesUsingHandlers() error {
+func (tg *TgBot) ListenToUpdates() error {
 	// Get updates channel
 	// (more on configuration in examples/updates_long_polling/main.go)
 	updates, err := tg.bot.UpdatesViaLongPolling(nil)
