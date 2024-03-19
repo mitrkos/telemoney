@@ -22,7 +22,7 @@ func New(config *Config, api apihandler.MessageHandler, storage storage.Transact
 		config:             config,
 		api:                api,
 		transactionStorage: storage,
-		parser: parser,
+		parser:             parser,
 	}
 
 	t.api.SetUpdateHandlerStartCommand(t.handleStartCommand)
@@ -63,7 +63,7 @@ func (t *Telemoney) handleRemoveMessageCommand(msg *model.MessageToHandle) {
 		return
 	}
 
-	t.api.RemoveMessage(&model.MessageToInteract{
+	_ = t.api.RemoveMessage(&model.MessageToInteract{
 		ChatID:    msg.ChatID,
 		MessageID: msg.MessageID,
 	})
@@ -106,14 +106,14 @@ func (t *Telemoney) handleMessage(msg *model.MessageToHandle) {
 }
 
 func (t *Telemoney) markMessageHandleSuccess(msg *model.MessageToHandle) {
-	t.api.MarkMessageProcessedOK(&model.MessageToInteract{
+	_ = t.api.MarkMessageProcessedOK(&model.MessageToInteract{
 		ChatID:    msg.ChatID,
 		MessageID: msg.MessageID,
 	})
 }
 
 func (t *Telemoney) markMessageHandledFailure(msg *model.MessageToHandle) {
-	t.api.MarkMessageProcessedFail(&model.MessageToInteract{
+	_ = t.api.MarkMessageProcessedFail(&model.MessageToInteract{
 		ChatID:    msg.ChatID,
 		MessageID: msg.MessageID,
 	})

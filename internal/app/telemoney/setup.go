@@ -40,7 +40,6 @@ func PrepareDependencies() (*TelemoneyDependencies, error) {
 	}
 	tgBotHandler := tgbothandler.New(tgBot)
 
-
 	gsheetConfig := gsheetclient.Config{
 		AuthToken:     config.GSheetsAuthToken,
 		SpreadsheetID: config.SpreadsheetID,
@@ -60,9 +59,9 @@ func PrepareDependencies() (*TelemoneyDependencies, error) {
 	parser := parsing.New()
 
 	return &TelemoneyDependencies{
-		Config: config,
-		Api: tgBotHandler,
+		Config:             config,
+		Api:                tgBotHandler,
 		TransactionStorage: transactionStorage,
-		Parser: parser,
+		Parser:             parser,
 	}, nil
 }

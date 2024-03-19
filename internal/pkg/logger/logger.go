@@ -1,8 +1,9 @@
 package logger
 
-import(
-	"os"
+import (
 	"log/slog"
+	"os"
+
 	"github.com/lmittmann/tint"
 )
 

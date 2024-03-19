@@ -58,9 +58,17 @@ func (gsc *GSheetsClient) AppendDataToRange(appendRange *A1Range, dataRow []inte
 		Values: [][]interface{}{dataRow},
 	}
 
-	response, err := gsc.service.Spreadsheets.Values.Append(gsc.config.SpreadsheetID, appendRange.String(), row).ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").Do()
+	response, err := gsc.service.Spreadsheets.Values.
+		Append(gsc.config.SpreadsheetID, appendRange.String(), row).
+		ValueInputOption("USER_ENTERED").InsertDataOption("INSERT_ROWS").
+		Do()
 	if err = parseGSheetAPIError(err, response.HTTPStatusCode); err != nil {
-		slog.Error("Append data to gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow))
+		slog.Error(
+			"Append data to gseets failed",
+			slog.Any("err", err),
+			slog.Any("response", response),
+			slog.Any("dataRow", dataRow),
+		)
 		return err
 	}
 	return nil
@@ -71,9 +79,14 @@ func (gsc *GSheetsClient) UpdateDataRange(updateRange *A1Range, dataRow []interf
 		Values: [][]interface{}{dataRow},
 	}
 
-	response, err := gsc.service.Spreadsheets.Values.Update(gsc.config.SpreadsheetID, updateRange.String(), row).ValueInputOption("USER_ENTERED").Do()
+	response, err := gsc.service.Spreadsheets.Values.
+		Update(gsc.config.SpreadsheetID, updateRange.String(), row).
+		ValueInputOption("USER_ENTERED").
+		Do()
 	if err = parseGSheetAPIError(err, response.HTTPStatusCode); err != nil {
-		slog.Error("Update data to gseets failed", slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow), slog.Any("updateRange", updateRange))
+		slog.Error(
+			"Update data to gseets failed",
+			slog.Any("err", err), slog.Any("response", response), slog.Any("dataRow", dataRow), slog.Any("updateRange", updateRange))
 		return err
 	}
 	return nil

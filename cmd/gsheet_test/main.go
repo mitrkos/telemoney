@@ -17,8 +17,8 @@ func main() {
 	}
 
 	gsheetConfig := gsheetclient.Config{
-		AuthToken:          authToken,
-		SpreadsheetID:      "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs",
+		AuthToken:     authToken,
+		SpreadsheetID: "1DNP3yNOA03Qd52u6HPAw4uGQLSpQac2o5JaaI-9JjGs",
 	}
 	_, err := gsheetclient.New(&gsheetConfig)
 	if err != nil {

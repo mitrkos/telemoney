@@ -46,7 +46,7 @@ func (trr *TransactionStorage) Update(transaction *model.Transaction) error {
 	if err != nil {
 		return storage.ErrOperationFailed
 	}
-	return nil 
+	return nil
 }
 
 func (trr *TransactionStorage) DeleteByMessageId(transactionMessageID string) error {
@@ -113,7 +113,7 @@ func convertTransactionToDataRow(transaction *model.Transaction) []interface{} {
 	dataRow[2] = transaction.Amount
 	dataRow[3] = transaction.Category
 	if len(transaction.Tags) > 0 {
-		tagsStr := strings.Join(transaction.Tags[:], ",")
+		tagsStr := strings.Join(transaction.Tags, ",")
 		dataRow[4] = tagsStr
 	}
 	if transaction.Comment != nil {

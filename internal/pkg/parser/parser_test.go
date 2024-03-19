@@ -121,8 +121,8 @@ func TestParser_ParseTransactionUserInputDataFromTextValidationError(t *testing.
 	parser := New()
 
 	testCases := []struct {
-		name          string
-		text          string
+		name string
+		text string
 	}{
 		{
 			name: "no Amount",

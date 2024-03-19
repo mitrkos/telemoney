@@ -6,7 +6,6 @@ import (
 	"github.com/mitrkos/telemoney/internal/model"
 )
 
-
 var ErrTransactionNotFound = errors.New("transaction not found")
 var ErrOperationFailed = errors.New("operation failed")
 

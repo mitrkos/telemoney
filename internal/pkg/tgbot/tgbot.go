@@ -145,7 +145,7 @@ func (tg *TgBot) RemoveMessage(msg *model.MessageToInteract) error {
 	}
 
 	err = tg.bot.DeleteMessage(&telego.DeleteMessageParams{
-		ChatID: telegoutil.ID(tgChatID),
+		ChatID:    telegoutil.ID(tgChatID),
 		MessageID: tgMessageID,
 	})
 	if err != nil {
@@ -155,7 +155,6 @@ func (tg *TgBot) RemoveMessage(msg *model.MessageToInteract) error {
 
 	return nil
 }
-
 
 func (tg *TgBot) SetMessageReaction(reactionForMsg *ReactionForMessage) error {
 	tgChatID, err := convertChatIDToTGChatID(reactionForMsg.Msg.ChatID)
@@ -191,7 +190,7 @@ func convertTGMessageToMessage(tgMsg *telego.Message) *model.MessageToHandle {
 	return &model.MessageToHandle{
 		CreatedAt: tgMsg.Date,
 		MessageID: strconv.Itoa(tgMsg.MessageID),
-		ChatID: strconv.FormatInt(tgMsg.Chat.ID, 10),
+		ChatID:    strconv.FormatInt(tgMsg.Chat.ID, 10),
 		Text:      tgMsg.Text,
 	}
 }
