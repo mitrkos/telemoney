@@ -7,7 +7,13 @@ import (
 
 func main() {
 	logger.SetLogger()
-	err := telemoney.Start()
+	deps, err := telemoney.PrepareDependencies()
+	if err != nil {
+		panic(err)
+	}
+
+	t := telemoney.New(deps.Config, deps.Api, deps.TransactionStorage, deps.Parser)
+	err = t.Start()
 	if err != nil {
 		panic(err)
 	}

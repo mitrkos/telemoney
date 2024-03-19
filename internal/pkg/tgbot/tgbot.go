@@ -10,12 +10,22 @@ import (
 	"github.com/mymmrac/telego/telegoutil"
 )
 
+type TgMessageReaction = []telego.ReactionType
+
+type ReactionForMessage struct {
+	Msg      *model.MessageToInteract
+	Reaction TgMessageReaction
+}
+
 type TgBot struct {
 	config *Config
 
 	bot *telego.Bot
 
-	updateHandlerMessage func(msg *model.Message) error
+	updateHandlerStartCommand         func()
+	updateHandlerRemoveMessageCommand func(msg *model.MessageToHandle)
+	updateHandlerMessage              func(msg *model.MessageToHandle)
+	updateHandlerEditedMessage        func(msg *model.MessageToHandle)
 }
 
 type Config struct {
@@ -30,68 +40,24 @@ func New(config *Config) (*TgBot, error) {
 
 	return &TgBot{
 		config: config,
-		bot: bot,
+		bot:    bot,
 	}, nil
 }
 
-func (tg *TgBot) SetUpdateHandlerMessage(updateHandlerMessage func(msg *model.Message) error) {
-	tg.updateHandlerMessage = updateHandlerMessage
+func (tg *TgBot) SetUpdateHandlerStartCommand(handler func()) {
+	tg.updateHandlerStartCommand = handler
 }
 
-func (tg *TgBot) ListenToUpdates() error {
-	// Get updates channel
-	// (more on configuration in examples/updates_long_polling/main.go)
-	updates, err := tg.bot.UpdatesViaLongPolling(nil)
-	if err != nil {
-		return err
-	}
+func (tg *TgBot) SetUpdateHandlerRemoveMessageCommand(handler func(*model.MessageToHandle)) {
+	tg.updateHandlerRemoveMessageCommand = handler
+}
 
-	// Stop reviving updates from update channel
-	defer tg.bot.StopLongPolling()
+func (tg *TgBot) SetUpdateHandlerMessage(handler func(*model.MessageToHandle)) {
+	tg.updateHandlerMessage = handler
+}
 
-	// Loop through all updates when they came
-	for update := range updates {
-		var tgMessage *telego.Message
-		isEdited := false
-
-		if update.Message != nil {
-			tgMessage = update.Message
-		}
-		if update.EditedMessage != nil {
-			tgMessage = update.EditedMessage
-			isEdited = true
-		}
-
-		if tgMessage == nil {
-			continue
-		}
-		
-		err := tg.updateHandlerMessage(convertTgMessageToMessage(tgMessage, isEdited))
-
-		// TODO: move this logic to handler
-		if err == nil {
-			tg.bot.SetMessageReaction(
-				&telego.SetMessageReactionParams{
-					ChatID: tgMessage.Chat.ChatID(),
-					MessageID: tgMessage.MessageID,
-					Reaction: makeReactionSuccessEmoji(),
-					IsBig: true,
-				},
-			)
-		} else {
-			slog.Error("Error while handling a tg msg", slog.Any("err", err), slog.Any("msg", tgMessage))
-			tg.bot.SetMessageReaction(
-				&telego.SetMessageReactionParams{
-					ChatID: tgMessage.Chat.ChatID(),
-					MessageID: tgMessage.MessageID,
-					Reaction: makeReactionUnknownMessageEmoji(),
-					IsBig: true,
-				},
-			)
-		}
-	}
-
-	return nil
+func (tg *TgBot) SetUpdateHandlerEditedMessage(handler func(*model.MessageToHandle)) {
+	tg.updateHandlerEditedMessage = handler
 }
 
 func (tg *TgBot) ListenToUpdatesUsingHandlers() error {
@@ -110,45 +76,154 @@ func (tg *TgBot) ListenToUpdatesUsingHandlers() error {
 	defer tg.bot.StopLongPolling()
 
 	handler.Handle(func(bot *telego.Bot, update telego.Update) {
-		// Send message
-		_, _ = bot.SendMessage(telegoutil.Messagef(
-			telegoutil.ID(update.Message.Chat.ID),
-			"Hello %s!", update.Message.From.FirstName,
-		))
+		if tg.updateHandlerStartCommand == nil {
+			return
+		}
+
+		tg.updateHandlerStartCommand()
 	}, telegohandler.CommandEqual("start"))
 
 	handler.Handle(func(bot *telego.Bot, update telego.Update) {
-		// Send message
-		_, _ = bot.SendMessage(telegoutil.Message(
-			telegoutil.ID(update.Message.Chat.ID),
-			"Unknown command, use /start",
-		))
-	}, telegohandler.AnyCommand())
+		if tg.updateHandlerRemoveMessageCommand == nil {
+			return
+		}
+
+		tg.updateHandlerRemoveMessageCommand(convertTGMessageToMessage(update.Message.ReplyToMessage))
+	}, telegohandler.CommandEqual("remove"))
+
+	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+		if tg.updateHandlerEditedMessage == nil {
+			return
+		}
+		if update.EditedMessage == nil {
+			return
+		}
+
+		tg.updateHandlerMessage(convertTGMessageToMessage(update.EditedMessage))
+	}, telegohandler.AnyEditedMessageWithText())
+
+	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+		if tg.updateHandlerEditedMessage == nil {
+			return
+		}
+		if update.Message == nil {
+			return
+		}
+
+		tg.updateHandlerMessage(convertTGMessageToMessage(update.Message))
+	}, telegohandler.AnyMessageWithText())
 
 	// Start handling updates
 	handler.Start()
+
 	return nil
 }
 
-func convertTgMessageToMessage(tgMsg *telego.Message, isEdited bool) *model.Message {
-	return &model.Message{
+func (tg *TgBot) SendMessage(msg *model.MessageToSend) error {
+	tgChatID, err := convertChatIDToTGChatID(msg.ChatID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tg.bot.SendMessage(telegoutil.Messagef(telegoutil.ID(tgChatID), msg.Text))
+	if err != nil {
+		slog.Error("sending msg to tg failed", slog.Any("err", err), slog.Any("msg", msg))
+		return err
+	}
+
+	return nil
+}
+
+func (tg *TgBot) RemoveMessage(msg *model.MessageToInteract) error {
+	tgChatID, err := convertChatIDToTGChatID(msg.ChatID)
+	if err != nil {
+		return err
+	}
+	tgMessageID, err := convertMessageIdToTGMessageID(msg.MessageID)
+	if err != nil {
+		return err
+	}
+
+	err = tg.bot.DeleteMessage(&telego.DeleteMessageParams{
+		ChatID: telegoutil.ID(tgChatID),
+		MessageID: tgMessageID,
+	})
+	if err != nil {
+		slog.Error("deleting msg in tg  failed", slog.Any("err", err), slog.Any("msg", msg))
+		return err
+	}
+
+	return nil
+}
+
+
+func (tg *TgBot) SetMessageReaction(reactionForMsg *ReactionForMessage) error {
+	tgChatID, err := convertChatIDToTGChatID(reactionForMsg.Msg.ChatID)
+	if err != nil {
+		return err
+	}
+	tgMessageID, err := convertMessageIdToTGMessageID(reactionForMsg.Msg.MessageID)
+	if err != nil {
+		return err
+	}
+
+	err = tg.bot.SetMessageReaction(
+		&telego.SetMessageReactionParams{
+			ChatID:    telegoutil.ID(tgChatID),
+			MessageID: tgMessageID,
+			Reaction:  reactionForMsg.Reaction,
+			IsBig:     true,
+		},
+	)
+	if err != nil {
+		slog.Error("setting msg reaction failed", slog.Any("err", err), slog.Any("reactionForMsg", reactionForMsg))
+		return err
+	}
+
+	return nil
+}
+
+func convertTGMessageToMessage(tgMsg *telego.Message) *model.MessageToHandle {
+	if tgMsg == nil {
+		return nil
+	}
+
+	return &model.MessageToHandle{
 		CreatedAt: tgMsg.Date,
 		MessageID: strconv.Itoa(tgMsg.MessageID),
-		IsEdited: isEdited,
+		ChatID: strconv.FormatInt(tgMsg.Chat.ID, 10),
 		Text:      tgMsg.Text,
 	}
 }
 
-func makeReactionUnknownMessageEmoji() []telego.ReactionType {
+func convertChatIDToTGChatID(chatID string) (int64, error) {
+	tgChatID, err := strconv.ParseInt(chatID, 10, 64)
+	if err != nil {
+		slog.Error("can't convert ChatID to tg ChatID", slog.Any("chatID", chatID))
+	}
+
+	return tgChatID, err
+}
+
+func convertMessageIdToTGMessageID(messageID string) (int, error) {
+	tgMessageID, err := strconv.Atoi(messageID)
+	if err != nil {
+		slog.Error("can't convert MessageID to tg MessageID", slog.Any("messageID", tgMessageID))
+	}
+
+	return tgMessageID, err
+}
+
+func MakeReactionShruggingEmoji() TgMessageReaction {
 	return []telego.ReactionType{&telego.ReactionTypeEmoji{
-		Type: telego.ReactionEmoji,
+		Type:  telego.ReactionEmoji,
 		Emoji: "🤷‍♂",
 	}}
 }
 
-func makeReactionSuccessEmoji() []telego.ReactionType {
+func MakeReactionOkEmoji() TgMessageReaction {
 	return []telego.ReactionType{&telego.ReactionTypeEmoji{
-		Type: telego.ReactionEmoji,
+		Type:  telego.ReactionEmoji,
 		Emoji: "👌",
 	}}
 }

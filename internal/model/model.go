@@ -1,10 +1,20 @@
 package model
 
-type Message struct {
+type MessageToHandle struct {
 	CreatedAt int64
 	MessageID string
-	IsEdited bool
+	ChatID    string
 	Text      string
+}
+
+type MessageToSend struct {
+	Text   string
+	ChatID string
+}
+
+type MessageToInteract struct {
+	MessageID string
+	ChatID    string
 }
 
 type Transaction struct {

@@ -4,90 +4,122 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/mitrkos/telemoney/internal/app/telemoney/apihandler"
 	"github.com/mitrkos/telemoney/internal/app/telemoney/storage"
-	"github.com/mitrkos/telemoney/internal/app/telemoney/storage/gsheetstorage"
 	"github.com/mitrkos/telemoney/internal/model"
-	"github.com/mitrkos/telemoney/internal/pkg/gsheetclient"
 	parsing "github.com/mitrkos/telemoney/internal/pkg/parser"
-	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
 )
 
-func Start() error {
-	config, err := readConfig()
-	if err != nil {
-		slog.Error("can't read the config", slog.Any("err", err))
-		return err
+type Telemoney struct {
+	config             *Config
+	api                apihandler.MessageHandler
+	transactionStorage storage.TransactionStorage
+	parser             *parsing.Parser
+}
+
+func New(config *Config, api apihandler.MessageHandler, storage storage.TransactionStorage, parser *parsing.Parser) *Telemoney {
+	t := Telemoney{
+		config:             config,
+		api:                api,
+		transactionStorage: storage,
+		parser: parser,
 	}
 
-	tgConfig := tgbot.Config{
-		AuthToken: config.TgAuthTokenTest,
-	}
-	if config.Env == "prod" {
-		tgConfig.AuthToken = config.TgAuthToken
-	}
+	t.api.SetUpdateHandlerStartCommand(t.handleStartCommand)
+	t.api.SetUpdateHandlerRemoveMessageCommand(t.handleRemoveMessageCommand)
+	t.api.SetUpdateHandlerEditedMessage(t.handleEditedMessage)
+	t.api.SetUpdateHandlerMessage(t.handleMessage)
 
-	tgBot, err := tgbot.New(&tgConfig)
-	if err != nil {
-		slog.Error("can't connect to tg", slog.Any("err", err))
-		return err
-	}
+	return &t
+}
 
-	gsheetConfig := gsheetclient.Config{
-		AuthToken:     config.GSheetsAuthToken,
-		SpreadsheetID: config.SpreadsheetID,
-	}
-	gSheetsClient, err := gsheetclient.New(&gsheetConfig)
-	if err != nil {
-		slog.Error("can't connect to gsheets", slog.Any("err", err))
-		return err
-	}
+func (t *Telemoney) Start() error {
+	err := t.api.ListenToUpdates()
 
-	transactionSheetID := config.TransactionSheetIDTest
-	if config.Env == "prod" {
-		transactionSheetID = config.TransactionSheetID
-	}
-	transactionStorage := gsheetstorage.New(gSheetsClient, transactionSheetID)
-
-	parser := parsing.New()
-
-	tgBot.SetUpdateHandlerMessage(makeHandleTgMessage(parser, transactionStorage))
-	err = tgBot.ListenToUpdates()
 	if err != nil {
 		slog.Error("problem with listening to tg", slog.Any("err", err))
 		return err
 	}
-
 	return nil
 }
 
-func makeHandleTgMessage(parser *parsing.Parser, transactionStorage storage.TransactionStorage) func(msg *model.Message) error {
-	return func(msg *model.Message) error {
-		transaction, err := convertMessageIntoTransaction(parser, msg)
-		if err != nil {
-			return err
-		}
-
-		if transaction == nil {
-			return err
-		}
-
-		if msg.IsEdited {
-			err = transactionStorage.Update(transaction)
-			if err == nil {
-				return nil
-			}
-		}
-
-
-		if !msg.IsEdited || errors.Is(err, storage.ErrTransactionNotFound) {
-			err = transactionStorage.Insert(transaction)
-		}
-
-		return err
-	}
+func (t *Telemoney) handleStartCommand() {
+	// TODO
 }
 
-func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.Message) (*model.Transaction, error) {
+func (t *Telemoney) handleRemoveMessageCommand(msg *model.MessageToHandle) {
+	if msg == nil {
+		// TODO: info msg
+		// t.api.SendMessage(&model.MessageToSend{
+		// 	ChatID: msg.ChatID,
+		// 	Text:   "/remove command should be a reply to a message",
+		// })
+		// t.markMessageHandledFailure(msg)
+		return
+	}
+
+	err := t.transactionStorage.DeleteByMessageId(msg.MessageID)
+	if err != nil {
+		return
+	}
+
+	t.api.RemoveMessage(&model.MessageToInteract{
+		ChatID:    msg.ChatID,
+		MessageID: msg.MessageID,
+	})
+}
+
+func (t *Telemoney) handleEditedMessage(msg *model.MessageToHandle) {
+	transaction, err := convertMessageIntoTransaction(t.parser, msg)
+	if err != nil {
+		t.markMessageHandledFailure(msg)
+		return
+	}
+
+	err = t.transactionStorage.Update(transaction)
+	if errors.Is(err, storage.ErrTransactionNotFound) {
+		err = t.transactionStorage.Insert(transaction)
+	}
+
+	if err != nil {
+		t.markMessageHandledFailure(msg)
+		return
+	}
+
+	t.markMessageHandleSuccess(msg)
+}
+
+func (t *Telemoney) handleMessage(msg *model.MessageToHandle) {
+	transaction, err := convertMessageIntoTransaction(t.parser, msg)
+	if err != nil {
+		t.markMessageHandledFailure(msg)
+		return
+	}
+
+	err = t.transactionStorage.Insert(transaction)
+	if err != nil {
+		t.markMessageHandledFailure(msg)
+		return
+	}
+
+	t.markMessageHandleSuccess(msg)
+}
+
+func (t *Telemoney) markMessageHandleSuccess(msg *model.MessageToHandle) {
+	t.api.MarkMessageProcessedOK(&model.MessageToInteract{
+		ChatID:    msg.ChatID,
+		MessageID: msg.MessageID,
+	})
+}
+
+func (t *Telemoney) markMessageHandledFailure(msg *model.MessageToHandle) {
+	t.api.MarkMessageProcessedFail(&model.MessageToInteract{
+		ChatID:    msg.ChatID,
+		MessageID: msg.MessageID,
+	})
+}
+
+func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.MessageToHandle) (*model.Transaction, error) {
 	if msg == nil {
 		return nil, nil
 	}
