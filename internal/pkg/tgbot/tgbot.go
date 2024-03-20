@@ -68,7 +68,9 @@ func (tg *TgBot) SetUpdateHandlerEditedMessage(handler func(*model.MessageToHand
 func (tg *TgBot) ListenToUpdates() error {
 	// Get updates channel
 	// (more on configuration in examples/updates_long_polling/main.go)
-	updates, err := tg.bot.UpdatesViaLongPolling(nil)
+	updates, err := tg.bot.UpdatesViaLongPolling(&telego.GetUpdatesParams{ //nolint:exhaustruct // ok way to use
+		Timeout: 30, //nolint:gomnd // timeout in sec
+	})
 	if err != nil {
 		return err
 	}
