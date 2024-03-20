@@ -12,7 +12,7 @@ func main() {
 		panic(err)
 	}
 
-	t := telemoney.New(deps.Config, deps.Api, deps.TransactionStorage, deps.Parser)
+	t := telemoney.New(deps.Config, deps.API, deps.TransactionStorage, deps.Parser)
 	err = t.Start()
 	if err != nil {
 		panic(err)

@@ -55,7 +55,12 @@ func readConfig() (*Config, error) {
 		GSheetsAuthToken: viper.GetString("gsheets.auth_token"),
 	}
 
-	if config.Env == "" || config.SpreadsheetID == "" || config.TransactionSheetID == "" || config.TransactionSheetIDTest == "" || config.TgAuthToken == "" || config.GSheetsAuthToken == "" {
+	if config.Env == "" ||
+		config.SpreadsheetID == "" ||
+		config.TransactionSheetID == "" ||
+		config.TransactionSheetIDTest == "" ||
+		config.TgAuthToken == "" ||
+		config.GSheetsAuthToken == "" {
 		slog.Error("Config parsing failed", slog.Any("parsedConfig", config))
 		return nil, errors.New("Config is not complete")
 	}

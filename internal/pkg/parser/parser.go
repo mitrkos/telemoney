@@ -21,7 +21,9 @@ type TransactionUserInputData struct {
 }
 
 func New() *Parser {
-	regexp := regroup.MustCompile(`^(?P<amount>\d+[\.,]?\d*) (?P<category>\w+) ?(?:\((?P<tags>[\w, ]*)\))?(?P<comment>.*$)?`) // to parse "9,5 lunch (grenka, dumplings) I need foood!"
+	regexp := regroup.MustCompile(
+		`^(?P<amount>\d+[\.,]?\d*) (?P<category>\w+) ?(?:\((?P<tags>[\w, ]*)\))?(?P<comment>.*$)?`,
+	) // to parse "9,5 lunch (grenka, dumplings) I need foood!"
 	return &Parser{
 		regexp: regexp,
 	}
@@ -47,16 +49,10 @@ func (p *Parser) ParseTransactionUserInputDataFromText(text string) (*Transactio
 		}
 
 		tagsRaw, ok := match["tags"]
-		tags, err := parseAndValidateTransactionTags(tagsRaw, ok)
-		if err != nil {
-			return nil, err
-		}
+		tags := parseAndValidateTransactionTags(tagsRaw, ok)
 
 		commentRaw, ok := match["comment"]
-		comment, err := parseAndValidateTransactionComment(commentRaw, ok)
-		if err != nil {
-			return nil, err
-		}
+		comment := parseAndValidateTransactionComment(commentRaw, ok)
 
 		return &TransactionUserInputData{
 			Amount:   amount,
@@ -92,9 +88,9 @@ func parseAndValidateTransactionCategory(categoryRaw string, ok bool) (string, e
 	return category, nil
 }
 
-func parseAndValidateTransactionTags(tagsRaw string, ok bool) ([]string, error) {
+func parseAndValidateTransactionTags(tagsRaw string, ok bool) []string {
 	if !ok {
-		return nil, nil
+		return nil
 	}
 
 	var tags []string
@@ -108,19 +104,19 @@ func parseAndValidateTransactionTags(tagsRaw string, ok bool) ([]string, error) 
 	}
 
 	if len(tags) > 0 {
-		return tags, nil
+		return tags
 	}
 
-	return nil, nil
+	return nil
 }
 
-func parseAndValidateTransactionComment(commentRaw string, ok bool) (*string, error) {
+func parseAndValidateTransactionComment(commentRaw string, ok bool) *string {
 	if !ok {
-		return nil, nil
+		return nil
 	}
 	comment := strings.TrimSpace(commentRaw)
 	if comment != "" {
-		return &comment, nil
+		return &comment
 	}
-	return nil, nil
+	return nil
 }

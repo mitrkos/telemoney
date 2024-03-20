@@ -12,14 +12,14 @@ import (
 	"github.com/mitrkos/telemoney/internal/pkg/tgbot"
 )
 
-type TelemoneyDependencies struct {
+type Dependencies struct {
 	Config             *Config
-	Api                apihandler.MessageHandler
+	API                apihandler.MessageHandler
 	TransactionStorage storage.TransactionStorage
 	Parser             *parsing.Parser
 }
 
-func PrepareDependencies() (*TelemoneyDependencies, error) {
+func PrepareDependencies() (*Dependencies, error) {
 	config, err := readConfig()
 	if err != nil {
 		slog.Error("can't read the config", slog.Any("err", err))
@@ -58,9 +58,9 @@ func PrepareDependencies() (*TelemoneyDependencies, error) {
 
 	parser := parsing.New()
 
-	return &TelemoneyDependencies{
+	return &Dependencies{
 		Config:             config,
-		Api:                tgBotHandler,
+		API:                tgBotHandler,
 		TransactionStorage: transactionStorage,
 		Parser:             parser,
 	}, nil

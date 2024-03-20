@@ -6,7 +6,7 @@ import (
 	"github.com/mitrkos/telemoney/internal/model"
 )
 
-var ErrApiOperationFailed = errors.New("api operation failed")
+var ErrAPIOperationFailed = errors.New("api operation failed")
 
 type MessageHandler interface {
 	// inputs

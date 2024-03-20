@@ -1,25 +1,27 @@
-package parser
+package parser_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/mitrkos/telemoney/internal/pkg/parser"
 )
 
 func makeStringPtrInPlace(v string) *string { return &v }
 
 func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
-	parser := New()
+	p := parser.New()
 
 	testCases := []struct {
 		name           string
 		text           string
-		expectedResult *TransactionUserInputData
+		expectedResult *parser.TransactionUserInputData
 	}{
 		{
 			name: "full string",
 			text: "9,5 lunch (grenka, dumplings) I need food!",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     []string{"grenka", "dumplings"},
@@ -29,7 +31,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "no Comment, no Tags",
 			text: "9,5 lunch",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     nil,
@@ -39,7 +41,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "no Comment",
 			text: "9,5 lunch (grenka, dumplings)",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     []string{"grenka", "dumplings"},
@@ -49,7 +51,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "no Tags",
 			text: "9,5 lunch I need food!",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     nil,
@@ -59,7 +61,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "dot Amount separator",
 			text: "9.5 lunch",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     nil,
@@ -69,7 +71,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "integer Amount",
 			text: "9 lunch",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9,
 				Category: "lunch",
 				Tags:     nil,
@@ -79,7 +81,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "Category normalization",
 			text: "9,5 Lunch ",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     nil,
@@ -89,7 +91,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "Tags normalization",
 			text: "9,5 lunch (grenkA,   Dumplings,)",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     []string{"grenka", "dumplings"},
@@ -99,7 +101,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 		{
 			name: "Comment normalization",
 			text: "9,5 lunch I need food!   ",
-			expectedResult: &TransactionUserInputData{
+			expectedResult: &parser.TransactionUserInputData{
 				Amount:   9.5,
 				Category: "lunch",
 				Tags:     nil,
@@ -110,15 +112,15 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := parser.ParseTransactionUserInputDataFromText(tc.text)
-			require.Nil(t, err)
+			result, err := p.ParseTransactionUserInputDataFromText(tc.text)
+			require.NoError(t, err)
 			require.Equal(t, tc.expectedResult, result, "TransactionUserInputDatas aren't equal")
 		})
 	}
 }
 
 func TestParser_ParseTransactionUserInputDataFromTextValidationError(t *testing.T) {
-	parser := New()
+	p := parser.New()
 
 	testCases := []struct {
 		name string
@@ -144,7 +146,7 @@ func TestParser_ParseTransactionUserInputDataFromTextValidationError(t *testing.
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := parser.ParseTransactionUserInputDataFromText(tc.text)
+			_, err := p.ParseTransactionUserInputDataFromText(tc.text)
 			require.Error(t, err)
 		})
 	}

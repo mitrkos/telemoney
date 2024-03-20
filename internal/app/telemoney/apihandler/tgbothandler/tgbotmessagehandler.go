@@ -39,7 +39,7 @@ func (tgh *TgBotMessageHandler) SetUpdateHandlerEditedMessage(handler func(*mode
 func (tgh *TgBotMessageHandler) SendMessage(msg *model.MessageToSend) error {
 	err := tgh.tgbot.SendMessage(msg)
 	if err != nil {
-		return apihandler.ErrApiOperationFailed
+		return apihandler.ErrAPIOperationFailed
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func (tgh *TgBotMessageHandler) SendMessage(msg *model.MessageToSend) error {
 func (tgh *TgBotMessageHandler) RemoveMessage(msg *model.MessageToInteract) error {
 	err := tgh.tgbot.RemoveMessage(msg)
 	if err != nil {
-		return apihandler.ErrApiOperationFailed
+		return apihandler.ErrAPIOperationFailed
 	}
 	return nil
 }
@@ -58,7 +58,7 @@ func (tgh *TgBotMessageHandler) MarkMessageProcessedOK(msg *model.MessageToInter
 		Reaction: tgbot.MakeReactionOkEmoji(),
 	})
 	if err != nil {
-		return apihandler.ErrApiOperationFailed
+		return apihandler.ErrAPIOperationFailed
 	}
 	return nil
 }
@@ -69,7 +69,7 @@ func (tgh *TgBotMessageHandler) MarkMessageProcessedFail(msg *model.MessageToInt
 		Reaction: tgbot.MakeReactionShruggingEmoji(),
 	})
 	if err != nil {
-		return apihandler.ErrApiOperationFailed
+		return apihandler.ErrAPIOperationFailed
 	}
 	return nil
 }

@@ -4,10 +4,11 @@ import (
 	"log/slog"
 	"strconv"
 
-	"github.com/mitrkos/telemoney/internal/model"
 	"github.com/mymmrac/telego"
 	"github.com/mymmrac/telego/telegohandler"
 	"github.com/mymmrac/telego/telegoutil"
+
+	"github.com/mitrkos/telemoney/internal/model"
 )
 
 type TgMessageReaction = []telego.ReactionType
@@ -75,7 +76,7 @@ func (tg *TgBot) ListenToUpdates() error {
 	// Stop reviving updates from update channel
 	defer tg.bot.StopLongPolling()
 
-	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+	handler.Handle(func(_ *telego.Bot, _ telego.Update) {
 		if tg.updateHandlerStartCommand == nil {
 			return
 		}
@@ -83,7 +84,7 @@ func (tg *TgBot) ListenToUpdates() error {
 		tg.updateHandlerStartCommand()
 	}, telegohandler.CommandEqual("start"))
 
-	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+	handler.Handle(func(_ *telego.Bot, update telego.Update) {
 		if tg.updateHandlerRemoveMessageCommand == nil {
 			return
 		}
@@ -91,7 +92,7 @@ func (tg *TgBot) ListenToUpdates() error {
 		tg.updateHandlerRemoveMessageCommand(convertTGMessageToMessage(update.Message.ReplyToMessage))
 	}, telegohandler.CommandEqual("remove"))
 
-	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+	handler.Handle(func(_ *telego.Bot, update telego.Update) {
 		if tg.updateHandlerEditedMessage == nil {
 			return
 		}
@@ -102,7 +103,7 @@ func (tg *TgBot) ListenToUpdates() error {
 		tg.updateHandlerMessage(convertTGMessageToMessage(update.EditedMessage))
 	}, telegohandler.AnyEditedMessageWithText())
 
-	handler.Handle(func(bot *telego.Bot, update telego.Update) {
+	handler.Handle(func(_ *telego.Bot, update telego.Update) {
 		if tg.updateHandlerEditedMessage == nil {
 			return
 		}
@@ -139,7 +140,7 @@ func (tg *TgBot) RemoveMessage(msg *model.MessageToInteract) error {
 	if err != nil {
 		return err
 	}
-	tgMessageID, err := convertMessageIdToTGMessageID(msg.MessageID)
+	tgMessageID, err := convertMessageIDToTGMessageID(msg.MessageID)
 	if err != nil {
 		return err
 	}
@@ -161,7 +162,7 @@ func (tg *TgBot) SetMessageReaction(reactionForMsg *ReactionForMessage) error {
 	if err != nil {
 		return err
 	}
-	tgMessageID, err := convertMessageIdToTGMessageID(reactionForMsg.Msg.MessageID)
+	tgMessageID, err := convertMessageIDToTGMessageID(reactionForMsg.Msg.MessageID)
 	if err != nil {
 		return err
 	}
@@ -204,7 +205,7 @@ func convertChatIDToTGChatID(chatID string) (int64, error) {
 	return tgChatID, err
 }
 
-func convertMessageIdToTGMessageID(messageID string) (int, error) {
+func convertMessageIDToTGMessageID(messageID string) (int, error) {
 	tgMessageID, err := strconv.Atoi(messageID)
 	if err != nil {
 		slog.Error("can't convert MessageID to tg MessageID", slog.Any("messageID", tgMessageID))

@@ -12,5 +12,5 @@ var ErrOperationFailed = errors.New("operation failed")
 type TransactionStorage interface {
 	Insert(*model.Transaction) error
 	Update(*model.Transaction) error
-	DeleteByMessageId(string) error
+	DeleteByMessageID(string) error
 }

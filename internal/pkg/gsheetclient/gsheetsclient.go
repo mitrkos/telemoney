@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
+	"strconv"
 	"strings"
 
 	"log/slog"
@@ -125,7 +127,7 @@ func (gsc *GSheetsClient) FindValueLocation(searchRange *A1Range, searchValue st
 	}
 
 	if searchValueColumnIdx == -1 || searchValueRowIdx == -1 {
-		return nil, nil
+		return nil, nil //nolint:nilnil // fix later
 	}
 
 	searchValueColumnA1Index := toIntAlphabetic(searchRange.LeftTop.Column) + searchValueColumnIdx
@@ -141,7 +143,7 @@ func parseGSheetAPIError(err error, httpStatusCode int) error {
 	if err != nil {
 		return err
 	}
-	if httpStatusCode != 200 {
+	if httpStatusCode != http.StatusOK {
 		return fmt.Errorf("gsheet connection error: %d", httpStatusCode)
 	}
 	return nil
@@ -153,7 +155,7 @@ type A1Location struct {
 }
 
 type A1Range struct {
-	SheetId     string
+	SheetID     string
 	LeftTop     *A1Location
 	RightBottom *A1Location
 }
@@ -161,13 +163,13 @@ type A1Range struct {
 func (l *A1Location) String() string {
 	result := l.Column
 	if l.Row != 0 {
-		result += fmt.Sprint(l.Row)
+		result += strconv.Itoa(l.Row)
 	}
 	return result
 }
 
 func (r *A1Range) String() string {
-	result := r.SheetId
+	result := r.SheetID
 	if r.LeftTop != nil {
 		result += "!" + r.LeftTop.String()
 

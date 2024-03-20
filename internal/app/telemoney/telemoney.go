@@ -17,7 +17,12 @@ type Telemoney struct {
 	parser             *parsing.Parser
 }
 
-func New(config *Config, api apihandler.MessageHandler, storage storage.TransactionStorage, parser *parsing.Parser) *Telemoney {
+func New(
+	config *Config,
+	api apihandler.MessageHandler,
+	storage storage.TransactionStorage,
+	parser *parsing.Parser,
+) *Telemoney {
 	t := Telemoney{
 		config:             config,
 		api:                api,
@@ -58,7 +63,7 @@ func (t *Telemoney) handleRemoveMessageCommand(msg *model.MessageToHandle) {
 		return
 	}
 
-	err := t.transactionStorage.DeleteByMessageId(msg.MessageID)
+	err := t.transactionStorage.DeleteByMessageID(msg.MessageID)
 	if err != nil {
 		return
 	}
@@ -121,7 +126,7 @@ func (t *Telemoney) markMessageHandledFailure(msg *model.MessageToHandle) {
 
 func convertMessageIntoTransaction(parser *parsing.Parser, msg *model.MessageToHandle) (*model.Transaction, error) {
 	if msg == nil {
-		return nil, nil
+		return nil, nil //nolint:nilnil // fix later
 	}
 
 	userInputData, err := parser.ParseTransactionUserInputDataFromText(msg.Text)

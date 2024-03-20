@@ -10,18 +10,18 @@ import (
 
 type TransactionStorage struct {
 	gsheetclient                  *gsheetclient.GSheetsClient
-	transactionSheetId            string
+	transactionSheetID            string
 	transactionMessageIDScanRange *gsheetclient.A1Range
 }
 
-func New(gsheetclient *gsheetclient.GSheetsClient, transactionSheetId string) *TransactionStorage {
+func New(gsheetclient *gsheetclient.GSheetsClient, transactionSheetID string) *TransactionStorage {
 	// TODO: move gsheetclient creation to here
 	trr := &TransactionStorage{
 		gsheetclient:                  gsheetclient,
-		transactionSheetId:            transactionSheetId,
+		transactionSheetID:            transactionSheetID,
 		transactionMessageIDScanRange: nil,
 	}
-	trr.transactionMessageIDScanRange = trr.makeTransactionMessageIdScanRange()
+	trr.transactionMessageIDScanRange = trr.makeTransactionMessageIDScanRange()
 	return trr
 }
 
@@ -49,7 +49,7 @@ func (trr *TransactionStorage) Update(transaction *model.Transaction) error {
 	return nil
 }
 
-func (trr *TransactionStorage) DeleteByMessageId(transactionMessageID string) error {
+func (trr *TransactionStorage) DeleteByMessageID(transactionMessageID string) error {
 	msgIDLocation, err := trr.gsheetclient.FindValueLocation(trr.transactionMessageIDScanRange, transactionMessageID)
 	if err != nil {
 		return storage.ErrOperationFailed
@@ -65,9 +65,12 @@ func (trr *TransactionStorage) DeleteByMessageId(transactionMessageID string) er
 	return nil
 }
 
-func (trr *TransactionStorage) makeSheetRange(leftTop *gsheetclient.A1Location, rightBottom *gsheetclient.A1Location) *gsheetclient.A1Range {
+func (trr *TransactionStorage) makeSheetRange(
+	leftTop *gsheetclient.A1Location,
+	rightBottom *gsheetclient.A1Location,
+) *gsheetclient.A1Range {
 	return &gsheetclient.A1Range{
-		SheetId:     trr.transactionSheetId,
+		SheetID:     trr.transactionSheetID,
 		LeftTop:     leftTop,
 		RightBottom: rightBottom,
 	}
@@ -77,7 +80,7 @@ func (trr *TransactionStorage) makeTransactionAppendRange() *gsheetclient.A1Rang
 	return trr.makeSheetRange(
 		&gsheetclient.A1Location{
 			Column: "A", // TODO: add schema mapping
-			Row:    3,
+			Row:    3,   //nolint:gomnd // fix
 		}, &gsheetclient.A1Location{
 			Column: "F",
 			Row:    0,
@@ -85,10 +88,10 @@ func (trr *TransactionStorage) makeTransactionAppendRange() *gsheetclient.A1Rang
 	)
 }
 
-func (trr *TransactionStorage) makeTransactionMessageIdScanRange() *gsheetclient.A1Range {
+func (trr *TransactionStorage) makeTransactionMessageIDScanRange() *gsheetclient.A1Range {
 	return trr.makeSheetRange(&gsheetclient.A1Location{
 		Column: "B", // TODO: add schema mapping
-		Row:    3,
+		Row:    3,   //nolint:gomnd // fix
 	}, &gsheetclient.A1Location{
 		Column: "B",
 		Row:    0,
@@ -106,7 +109,7 @@ func (trr *TransactionStorage) makeTransactionRowRangeFromLocation(location *gsh
 }
 
 func convertTransactionToDataRow(transaction *model.Transaction) []interface{} {
-	dataRow := make([]interface{}, 6)
+	dataRow := make([]interface{}, 6) //nolint:gomnd // a row have 6 elems
 
 	dataRow[0] = transaction.CreatedAt
 	dataRow[1] = transaction.MessageID
