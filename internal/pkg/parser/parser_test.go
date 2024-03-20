@@ -113,7 +113,7 @@ func TestParser_ParseTransactionUserInputDataFromTextSuccess(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := p.ParseTransactionUserInputDataFromText(tc.text)
-			require.Error(t, err)
+			require.NoError(t, err)
 			require.Equal(t, tc.expectedResult, result, "TransactionUserInputDatas aren't equal")
 		})
 	}
