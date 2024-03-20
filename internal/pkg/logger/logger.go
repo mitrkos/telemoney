@@ -9,6 +9,6 @@ import (
 
 func SetLogger() {
 	slog.SetDefault(slog.New(
-		tint.NewHandler(os.Stderr, &tint.Options{}),
+		tint.NewHandler(os.Stderr, &tint.Options{}), //nolint:exhaustruct // ok way to use the lib
 	))
 }

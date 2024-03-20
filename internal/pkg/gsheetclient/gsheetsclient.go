@@ -56,7 +56,7 @@ func New(config *Config) (*GSheetsClient, error) {
 }
 
 func (gsc *GSheetsClient) AppendDataToRange(appendRange *A1Range, dataRow []interface{}) error {
-	row := &sheets.ValueRange{
+	row := &sheets.ValueRange{ //nolint:exhaustruct // ok way to use the lib
 		Values: [][]interface{}{dataRow},
 	}
 
@@ -77,7 +77,7 @@ func (gsc *GSheetsClient) AppendDataToRange(appendRange *A1Range, dataRow []inte
 }
 
 func (gsc *GSheetsClient) UpdateDataRange(updateRange *A1Range, dataRow []interface{}) error {
-	row := &sheets.ValueRange{
+	row := &sheets.ValueRange{ //nolint:exhaustruct // ok way to use the lib
 		Values: [][]interface{}{dataRow},
 	}
 

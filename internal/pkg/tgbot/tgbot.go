@@ -40,8 +40,12 @@ func New(config *Config) (*TgBot, error) {
 	}
 
 	return &TgBot{
-		config: config,
-		bot:    bot,
+		config:                            config,
+		bot:                               bot,
+		updateHandlerStartCommand:         nil,
+		updateHandlerRemoveMessageCommand: nil,
+		updateHandlerMessage:              nil,
+		updateHandlerEditedMessage:        nil,
 	}, nil
 }
 
