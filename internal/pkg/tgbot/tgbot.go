@@ -106,11 +106,11 @@ func (tg *TgBot) ListenToUpdates() error {
 			return
 		}
 
-		tg.updateHandlerMessage(convertTGMessageToMessage(update.EditedMessage))
+		tg.updateHandlerEditedMessage(convertTGMessageToMessage(update.EditedMessage))
 	}, telegohandler.AnyEditedMessageWithText())
 
 	handler.Handle(func(_ *telego.Bot, update telego.Update) {
-		if tg.updateHandlerEditedMessage == nil {
+		if tg.updateHandlerMessage == nil {
 			return
 		}
 		if update.Message == nil {
