@@ -32,3 +32,7 @@ docker-run-cicd:
 docker-down:
 	docker compose down
 
+.PHONY: lint
+lint:
+	golangci-lint run ./...
+
