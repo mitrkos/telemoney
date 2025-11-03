@@ -54,12 +54,7 @@ func (t *Telemoney) handleStartCommand() {
 
 func (t *Telemoney) handleRemoveMessageCommand(msg *model.MessageToHandle) {
 	if msg == nil {
-		// TODO: info msg
-		// t.api.SendMessage(&model.MessageToSend{
-		// 	ChatID: msg.ChatID,
-		// 	Text:   "/remove command should be a reply to a message",
-		// })
-		// t.markMessageHandledFailure(msg)
+		slog.Warn("handleRemoveMessageCommand called with nil message")
 		return
 	}
 
